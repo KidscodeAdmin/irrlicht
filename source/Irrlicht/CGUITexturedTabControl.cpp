@@ -1,11 +1,11 @@
-#include "CGUIImageTabControl.h"
+#include "CGUITexturedTabControl.h"
 
 namespace irr
 {
 namespace gui
 {
 //! constructor
-CGUIImageTab::CGUIImageTab(s32 number, IGUIEnvironment* environment,
+CGUITexturedTab::CGUITexturedTab(s32 number, IGUIEnvironment* environment,
 	IGUIElement* parent, const core::rect<s32>& rectangle,
 	s32 id, video::ITexture *texture, f32 scaling, s32 side)
 	: IGUITab(environment, parent, id, rectangle), Number(number),
@@ -15,7 +15,7 @@ CGUIImageTab::CGUIImageTab(s32 number, IGUIEnvironment* environment,
 		DrawnRect(rectangle)
 {
 	#ifdef _DEBUG
-	setDebugName("CGUIImageTab");
+	setDebugName("CGUITexturedTab");
 	#endif
 
 	const IGUISkin* const skin = environment->getSkin();
@@ -26,19 +26,19 @@ CGUIImageTab::CGUIImageTab(s32 number, IGUIEnvironment* environment,
 
 //! Returns number of tab in tabcontrol. Can be accessed
 //! later IGUITabControl::getTab() by this number.
-s32 CGUIImageTab::getNumber() const
+s32 CGUITexturedTab::getNumber() const
 {
 	return Number;
 }
 
 
 //! Sets the number
-void CGUIImageTab::setNumber(s32 n)
+void CGUITexturedTab::setNumber(s32 n)
 {
 	Number = n;
 }
 
-void CGUIImageTab::refreshSkinColors()
+void CGUITexturedTab::refreshSkinColors()
 {
 	if ( !OverrideTextColorEnabled )
 	{
@@ -47,7 +47,7 @@ void CGUIImageTab::refreshSkinColors()
 }
 
 //! draws the element and its children
-void CGUIImageTab::draw()
+void CGUITexturedTab::draw()
 {
 	if (!IsVisible)
 		return;
@@ -57,35 +57,35 @@ void CGUIImageTab::draw()
 
 
 //! sets if the tab should draw its background
-void CGUIImageTab::setDrawBackground(bool draw)
+void CGUITexturedTab::setDrawBackground(bool draw)
 {
 	DrawBackground = draw;
 }
 
 
 //! sets the color of the background, if it should be drawn.
-void CGUIImageTab::setBackgroundColor(video::SColor c)
+void CGUITexturedTab::setBackgroundColor(video::SColor c)
 {
 	BackColor = c;
 }
 
 
 //! sets the color of the text
-void CGUIImageTab::setTextColor(video::SColor c)
+void CGUITexturedTab::setTextColor(video::SColor c)
 {
 	OverrideTextColorEnabled = true;
 	TextColor = c;
 }
 
 
-video::SColor CGUIImageTab::getTextColor() const
+video::SColor CGUITexturedTab::getTextColor() const
 {
 	return TextColor;
 }
 
 
 //! returns true if the tab is drawing its background, false if not
-bool CGUIImageTab::isDrawingBackground() const
+bool CGUITexturedTab::isDrawingBackground() const
 {
 	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return DrawBackground;
@@ -93,14 +93,14 @@ bool CGUIImageTab::isDrawingBackground() const
 
 
 //! returns the color of the background
-video::SColor CGUIImageTab::getBackgroundColor() const
+video::SColor CGUITexturedTab::getBackgroundColor() const
 {
 	return BackColor;
 }
 
 
 //! Writes attributes of the element.
-void CGUIImageTab::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const
+void CGUITexturedTab::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const
 {
 	IGUITab::serializeAttributes(out,options);
 
@@ -114,7 +114,7 @@ void CGUIImageTab::serializeAttributes(io::IAttributes* out, io::SAttributeReadW
 
 
 //! Reads attributes of the element
-void CGUIImageTab::deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0)
+void CGUITexturedTab::deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0)
 {
 	IGUITab::deserializeAttributes(in,options);
 
@@ -130,15 +130,15 @@ void CGUIImageTab::deserializeAttributes(io::IAttributes* in, io::SAttributeRead
 
 	if (Parent && Parent->getType() == EGUIET_TAB_CONTROL)
 	{
-		((CGUIImageTabControl*)Parent)->addTab(this);
+		((CGUITexturedTabControl*)Parent)->addTab(this);
 		if (isVisible())
-			((CGUIImageTabControl*)Parent)->setActiveTab(this);
+			((CGUITexturedTabControl*)Parent)->setActiveTab(this);
 	}
 }
 
 
 //! Draws the tab image
-void CGUIImageTab::drawImage(
+void CGUITexturedTab::drawImage(
 	const irr::core::rect<s32>& tabRect
 	)
 {
@@ -176,7 +176,7 @@ void CGUIImageTab::drawImage(
 // ------------------------------------------------------------------
 
 //! constructor
-CGUIImageTabControl::CGUIImageTabControl(IGUIEnvironment* environment,
+CGUITexturedTabControl::CGUITexturedTabControl(IGUIEnvironment* environment,
 	IGUIElement* parent, const core::rect<s32>& rectangle,
 	bool show_background, bool show_border, s32 side, s32 id, 
 	s32 tab_height, s32 tab_width, s32 tab_padding, s32 tab_spacing,
@@ -210,7 +210,7 @@ CGUIImageTabControl::CGUIImageTabControl(IGUIEnvironment* environment,
 	ContentRect(0, 0, 0, 0)
 {
 	#ifdef _DEBUG
-	setDebugName("CGUIImageTabControl");
+	setDebugName("CGUITexturedTabControl");
 	#endif
 	
 	PriorArrow = Environment->addButton(core::rect<s32>(0,0,10,10), this);
@@ -250,7 +250,7 @@ CGUIImageTabControl::CGUIImageTabControl(IGUIEnvironment* environment,
 }
 
 //! destructor
-CGUIImageTabControl::~CGUIImageTabControl()
+CGUITexturedTabControl::~CGUITexturedTabControl()
 {
 	for (u32 i=0; i<Tabs.size(); ++i)
 	{
@@ -265,7 +265,7 @@ CGUIImageTabControl::~CGUIImageTabControl()
 		NextArrow->drop();
 }
 
-void CGUIImageTabControl::refreshSprites()
+void CGUITexturedTabControl::refreshSprites()
 {
 	video::SColor color(255,255,255,255);
 	IGUISkin* skin = Environment->getSkin();
@@ -289,16 +289,16 @@ void CGUIImageTabControl::refreshSprites()
 }
 
 //! Adds a tab
-IGUITab* CGUIImageTabControl::addTab(const wchar_t* caption, s32 id)
+IGUITab* CGUITexturedTabControl::addTab(const wchar_t* caption, s32 id)
 {
 	return addImageTab(caption, id, 0);
 }
 
 //! Adds an image tab
-CGUIImageTab* CGUIImageTabControl::addImageTab(const wchar_t* caption, s32 id, 
+CGUITexturedTab* CGUITexturedTabControl::addImageTab(const wchar_t* caption, s32 id, 
 	video::ITexture *texture, f32 scaling)
 {
-	CGUIImageTab* tab = new CGUIImageTab(Tabs.size(), Environment, this, calcRelativeRect(), id, 
+	CGUITexturedTab* tab = new CGUITexturedTab(Tabs.size(), Environment, this, calcRelativeRect(), id, 
 		texture, scaling);
 
 	if (!texture)
@@ -321,7 +321,7 @@ CGUIImageTab* CGUIImageTabControl::addImageTab(const wchar_t* caption, s32 id,
 
 
 //! adds a tab which has been created elsewhere
-void CGUIImageTabControl::addTab(CGUIImageTab* tab)
+void CGUITexturedTabControl::addTab(CGUITexturedTab* tab)
 {
 	if (!tab)
 		return;
@@ -359,12 +359,12 @@ void CGUIImageTabControl::addTab(CGUIImageTab* tab)
 }
 
 //! Insert the tab at the given index
-IGUITab* CGUIImageTabControl::insertTab(s32 idx, const wchar_t* caption, s32 id)
+IGUITab* CGUITexturedTabControl::insertTab(s32 idx, const wchar_t* caption, s32 id)
 {
 	if ( idx < 0 || idx > (s32)Tabs.size() )	// idx == Tabs.size() is indeed ok here as core::array can handle that
 		return NULL;
 
-	CGUIImageTab* tab = new CGUIImageTab(idx, Environment, this, calcRelativeRect(), id);
+	CGUITexturedTab* tab = new CGUITexturedTab(idx, Environment, this, calcRelativeRect(), id);
 
 	tab->setText(caption);
 	tab->setAlignment(EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
@@ -386,7 +386,7 @@ IGUITab* CGUIImageTabControl::insertTab(s32 idx, const wchar_t* caption, s32 id)
 }
 
 //! Removes a tab from the tabcontrol
-void CGUIImageTabControl::removeTab(s32 idx)
+void CGUITexturedTabControl::removeTab(s32 idx)
 {
 	if ( idx < 0 || idx >= (s32)Tabs.size() )
 		return;
@@ -400,7 +400,7 @@ void CGUIImageTabControl::removeTab(s32 idx)
 }
 
 //! Clears the tabcontrol removing all tabs
-void CGUIImageTabControl::clear()
+void CGUITexturedTabControl::clear()
 {
 	for (u32 i=0; i<Tabs.size(); ++i)
 	{
@@ -411,14 +411,14 @@ void CGUIImageTabControl::clear()
 }
 
 //! Returns amount of tabs in the tabcontrol
-s32 CGUIImageTabControl::getTabCount() const
+s32 CGUITexturedTabControl::getTabCount() const
 {
 	return Tabs.size();
 }
 
 
 //! Returns a tab based on zero based index
-IGUITab* CGUIImageTabControl::getTab(s32 idx) const
+IGUITab* CGUITexturedTabControl::getTab(s32 idx) const
 {
 	if ((u32)idx >= Tabs.size())
 		return 0;
@@ -428,7 +428,7 @@ IGUITab* CGUIImageTabControl::getTab(s32 idx) const
 
 
 //! called if an event happened.
-bool CGUIImageTabControl::OnEvent(const SEvent& event)
+bool CGUITexturedTabControl::OnEvent(const SEvent& event)
 {
 	if (isEnabled())
 	{
@@ -484,7 +484,7 @@ bool CGUIImageTabControl::OnEvent(const SEvent& event)
 }
 
 
-void CGUIImageTabControl::scrollLeft()
+void CGUITexturedTabControl::scrollLeft()
 {
 	if ( ScrollControl
 	     && FirstScrollTabIndex > 0 )
@@ -494,7 +494,7 @@ void CGUIImageTabControl::scrollLeft()
 }
 
 
-void CGUIImageTabControl::scrollRight()
+void CGUITexturedTabControl::scrollRight()
 {
 	if ( ScrollControl
 		 && FirstScrollTabIndex < (s32)(Tabs.size()) - 1 )
@@ -504,8 +504,8 @@ void CGUIImageTabControl::scrollRight()
 }
 
 
-s32 CGUIImageTabControl::calcTabWidth(s32 pos, IGUIFont* font, const wchar_t* text, bool withScrollControl,
-	CGUIImageTab* tab) const
+s32 CGUITexturedTabControl::calcTabWidth(s32 pos, IGUIFont* font, const wchar_t* text, bool withScrollControl,
+	CGUITexturedTab* tab) const
 {
 	if ( !font )
 		return 0;
@@ -534,7 +534,7 @@ s32 CGUIImageTabControl::calcTabWidth(s32 pos, IGUIFont* font, const wchar_t* te
 }
 
 
-void CGUIImageTabControl::calcTabs()
+void CGUITexturedTabControl::calcTabs()
 {	
 	if ( !IsVisible )
 		return;
@@ -566,7 +566,7 @@ void CGUIImageTabControl::calcTabs()
 		pos = AbsoluteRect.UpperLeftCorner.Y + BorderHeight;
 	}
 	
-	CGUIImageTab* tab;
+	CGUITexturedTab* tab;
 	
 	for (u32 i=FirstScrollTabIndex; i<Tabs.size(); ++i)
 	{
@@ -687,7 +687,7 @@ void CGUIImageTabControl::calcTabs()
 }
 
 
-void CGUIImageTabControl::calcScrollButtons()
+void CGUITexturedTabControl::calcScrollButtons()
 {
 	core::rect<s32> buttonRect;
 	
@@ -750,7 +750,7 @@ void CGUIImageTabControl::calcScrollButtons()
 
 
 //! Computes a tab position
-core::rect<s32> CGUIImageTabControl::calcRelativeRect()
+core::rect<s32> CGUITexturedTabControl::calcRelativeRect()
 {
 	core::rect<s32> r;
 	
@@ -782,7 +782,7 @@ core::rect<s32> CGUIImageTabControl::calcRelativeRect()
 
 
 //! Draws an expanded image
-void CGUIImageTabControl::drawExpandedImage(const irr::core::rect<s32>& tab_rect, 
+void CGUITexturedTabControl::drawExpandedImage(const irr::core::rect<s32>& tab_rect, 
 	const video::ITexture *texture, const s32 border_width, const s32 border_height)
 {
 	if (texture)
@@ -846,7 +846,7 @@ void CGUIImageTabControl::drawExpandedImage(const irr::core::rect<s32>& tab_rect
 
 
 //! Draws a tab
-void CGUIImageTabControl::drawTab(CGUIImageTab* tab, IGUIFont* font)
+void CGUITexturedTabControl::drawTab(CGUITexturedTab* tab, IGUIFont* font)
 {
 	core::rect<s32> tab_rect(tab->DrawnRect);				
 	const wchar_t* text = tab->getText();
@@ -887,7 +887,7 @@ void CGUIImageTabControl::drawTab(CGUIImageTab* tab, IGUIFont* font)
 
 
 //! draws the element and its children
-void CGUIImageTabControl::draw()
+void CGUITexturedTabControl::draw()
 {
 	if ( !IsVisible )
 		return;
@@ -905,11 +905,11 @@ void CGUIImageTabControl::draw()
 	calcTabs();
 	calcScrollButtons();
 	
-	CGUIImageTab* activeTab = 0;
+	CGUITexturedTab* activeTab = 0;
 		
 	for (s32 i=FirstScrollTabIndex; i<=LastScrollTabIndex; ++i)
 	{
-		CGUIImageTab* tab = Tabs[i];
+		CGUITexturedTab* tab = Tabs[i];
 		
 		if (tab)
 		{
@@ -940,7 +940,7 @@ void CGUIImageTabControl::draw()
 
 
 //! Set the height of the tabs
-void CGUIImageTabControl::setTabHeight( s32 height )
+void CGUITexturedTabControl::setTabHeight( s32 height )
 {
 	if ( height < 0 )
 		height = 0;
@@ -950,26 +950,26 @@ void CGUIImageTabControl::setTabHeight( s32 height )
 
 
 //! Get the height of the tabs
-s32 CGUIImageTabControl::getTabHeight() const
+s32 CGUITexturedTabControl::getTabHeight() const
 {
 	return TabHeight;
 }
 
 //! set the maximal width of a tab. Per default width is 0 which means "no width restriction".
-void CGUIImageTabControl::setTabWidth(s32 width )
+void CGUITexturedTabControl::setTabWidth(s32 width )
 {
 	TabWidth = width;
 }
 
 //! get the maximal width of a tab
-s32 CGUIImageTabControl::getTabWidth() const
+s32 CGUITexturedTabControl::getTabWidth() const
 {
 	return TabWidth;
 }
 
 
 //! Set the extra width added to tabs on each side of the text
-void CGUIImageTabControl::setTabPadding( s32 padding )
+void CGUITexturedTabControl::setTabPadding( s32 padding )
 {
 	if ( padding < 0 )
 		padding = 0;
@@ -979,14 +979,14 @@ void CGUIImageTabControl::setTabPadding( s32 padding )
 
 
 //! Get the extra width added to tabs on each side of the text
-s32 CGUIImageTabControl::getTabPadding() const
+s32 CGUITexturedTabControl::getTabPadding() const
 {
 	return TabPadding;
 }
 
 
 //! Set the alignment of the tabs
-void CGUIImageTabControl::setTabVerticalAlignment( EGUI_ALIGNMENT alignment )
+void CGUITexturedTabControl::setTabVerticalAlignment( EGUI_ALIGNMENT alignment )
 {
 	VerticalAlignment = alignment;
 
@@ -998,19 +998,19 @@ void CGUIImageTabControl::setTabVerticalAlignment( EGUI_ALIGNMENT alignment )
 }
 
 //! Get the alignment of the tabs
-EGUI_ALIGNMENT CGUIImageTabControl::getTabVerticalAlignment() const
+EGUI_ALIGNMENT CGUITexturedTabControl::getTabVerticalAlignment() const
 {
 	return VerticalAlignment;
 }
 
 
-s32 CGUIImageTabControl::getTabAt(s32 xpos, s32 ypos) const
+s32 CGUITexturedTabControl::getTabAt(s32 xpos, s32 ypos) const
 {
 	core::position2di p(xpos, ypos);
 
 	for (s32 i=FirstScrollTabIndex; i<=LastScrollTabIndex; ++i)
 	{
-		CGUIImageTab* tab = Tabs[i];
+		CGUITexturedTab* tab = Tabs[i];
 		
 		if ( tab )
 		{
@@ -1025,14 +1025,14 @@ s32 CGUIImageTabControl::getTabAt(s32 xpos, s32 ypos) const
 }
 
 //! Returns which tab is currently active
-s32 CGUIImageTabControl::getActiveTab() const
+s32 CGUITexturedTabControl::getActiveTab() const
 {
 	return ActiveTabIndex;
 }
 
 
 //! Brings a tab to front.
-bool CGUIImageTabControl::setActiveTab(s32 idx)
+bool CGUITexturedTabControl::setActiveTab(s32 idx)
 {
 	if ((u32)idx >= Tabs.size())
 		return false;
@@ -1059,7 +1059,7 @@ bool CGUIImageTabControl::setActiveTab(s32 idx)
 }
 
 
-bool CGUIImageTabControl::setActiveTab(IGUITab *tab)
+bool CGUITexturedTabControl::setActiveTab(IGUITab *tab)
 {
 	for (s32 i=0; i<(s32)Tabs.size(); ++i)
 		if (Tabs[i] == tab)
@@ -1069,7 +1069,7 @@ bool CGUIImageTabControl::setActiveTab(IGUITab *tab)
 
 
 //! Removes a child.
-void CGUIImageTabControl::removeChild(IGUIElement* child)
+void CGUITexturedTabControl::removeChild(IGUIElement* child)
 {
 	bool isTab = false;
 
@@ -1101,14 +1101,14 @@ void CGUIImageTabControl::removeChild(IGUIElement* child)
 
 
 //! Update the position of the element, decides scroll button status
-void CGUIImageTabControl::updateAbsolutePosition()
+void CGUITexturedTabControl::updateAbsolutePosition()
 {
 	IGUIElement::updateAbsolutePosition();
 }
 
 
 //! Writes attributes of the element.
-void CGUIImageTabControl::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const
+void CGUITexturedTabControl::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const
 {
 	IGUITabControl::serializeAttributes(out,options);
 
@@ -1122,7 +1122,7 @@ void CGUIImageTabControl::serializeAttributes(io::IAttributes* out, io::SAttribu
 
 
 //! Reads attributes of the element
-void CGUIImageTabControl::deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0)
+void CGUITexturedTabControl::deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0)
 {
 	ShowBorder      = in->getAttributeAsBool("Border");
 	ShowBackground  = in->getAttributeAsBool("FillBackground");
