@@ -113,6 +113,14 @@ CGUICustomSkin::CGUICustomSkin(EGUI_SKIN_TYPE type, video::IVideoDriver* driver)
 		Sizes[EGDS_TITLEBARTEXT_DISTANCE_Y] = 2;
 	}
 
+	for (u32 i=0; i<EGT_COUNT; ++i)
+	{
+		Textures[i] = 0;
+		TextureBorderWidths[i] = 16;
+		TextureBorderHeights[i] = 16;
+		TextureBorderOffsets[i] = 11;
+	}
+		
 	Sizes[EGDS_MESSAGE_BOX_GAP_SPACE] = 15;
 	Sizes[EGDS_MESSAGE_BOX_MIN_TEXT_WIDTH] = 0;
 	Sizes[EGDS_MESSAGE_BOX_MAX_TEXT_WIDTH] = 500;
@@ -194,6 +202,78 @@ void CGUICustomSkin::setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor)
 {
 	if ((u32)which < EGDC_COUNT)
 		Colors[which] = newColor;
+}
+
+
+//! returns default texture
+video::ITexture* CGUICustomSkin::getTexture(EGUI_TEXTURE texture) const
+{
+	if ((u32)texture < EGT_COUNT)
+		return Textures[texture];
+	else
+		return 0;
+}
+
+
+//! sets a default texture
+void CGUICustomSkin::setTexture(EGUI_TEXTURE which, video::ITexture* newTexture)
+{
+	if ((u32)which < EGT_COUNT)
+		Textures[which] = newTexture;
+}
+
+
+//! returns default texture
+s32 CGUICustomSkin::getTextureBorderWidth(EGUI_TEXTURE texture) const
+{
+	if ((u32)texture < EGT_COUNT)
+		return TextureBorderWidths[texture];
+	else
+		return 0;
+}
+
+
+//! sets a default texture
+void CGUICustomSkin::setTextureBorderWidth(EGUI_TEXTURE which, s32 newTextureBorderWidth)
+{
+	if ((u32)which < EGT_COUNT)
+		TextureBorderWidths[which] = newTextureBorderWidth;
+}
+
+
+//! returns default texture
+s32 CGUICustomSkin::getTextureBorderHeight(EGUI_TEXTURE texture) const
+{
+	if ((u32)texture < EGT_COUNT)
+		return TextureBorderHeights[texture];
+	else
+		return 0;
+}
+
+
+//! sets a default texture
+void CGUICustomSkin::setTextureBorderHeight(EGUI_TEXTURE which, s32 newTextureBorderHeight)
+{
+	if ((u32)which < EGT_COUNT)
+		TextureBorderHeights[which] = newTextureBorderHeight;
+}
+
+
+//! returns default texture
+s32 CGUICustomSkin::getTextureBorderOffset(EGUI_TEXTURE texture) const
+{
+	if ((u32)texture < EGT_COUNT)
+		return TextureBorderOffsets[texture];
+	else
+		return 0;
+}
+
+
+//! sets a default texture
+void CGUICustomSkin::setTextureBorderOffset(EGUI_TEXTURE which, s32 newTextureBorderOffset)
+{
+	if ((u32)which < EGT_COUNT)
+		TextureBorderOffsets[which] = newTextureBorderOffset;
 }
 
 
@@ -1012,8 +1092,76 @@ void CGUICustomSkin::deserializeAttributes(io::IAttributes* in, io::SAttributeRe
 }
 
 
+//! Draws a resized texture
+void CGUICustomSkin::drawStretchedImage(const irr::core::rect<s32>& tab_rect, 
+	const EGUI_TEXTURE texture)
+{
+	if (texture >= 0 && texture < EGT_COUNT )
+	{
+		video::ITexture *drawn_texture = Textures[texture];
+		s32 border_width = TextureBorderWidths[texture];
+		s32 border_height = TextureBorderHeights[texture];
+	
+		if (texture)
+		{
+			s32 texture_width = drawn_texture->getSize().Width;
+			s32 texture_height = drawn_texture->getSize().Height;
+			
+			s32 left = tab_rect.UpperLeftCorner.X;
+			s32 right = tab_rect.LowerRightCorner.X;
+			s32 top = tab_rect.UpperLeftCorner.Y;
+			s32 bottom = tab_rect.LowerRightCorner.Y;
+			
+			Driver->draw2DImage(drawn_texture,
+				irr::core::rect<s32>(left, top, left + border_width, top + border_height), 
+				irr::core::rect<s32>(0, 0, border_width, border_height), 
+				0, 0, true);
+
+			Driver->draw2DImage(drawn_texture,
+				irr::core::rect<s32>(left + border_width, top, right - border_width, top + border_height), 
+				irr::core::rect<s32>(border_width, 0, texture_width - border_width, border_height),  
+				0, 0, true);
+
+			Driver->draw2DImage(drawn_texture,
+				irr::core::rect<s32>(right - border_width, top, right, top + border_height), 
+				irr::core::rect<s32>(texture_width - border_width, 0, texture_width, border_height),  
+				0, 0, true);
+
+			Driver->draw2DImage(drawn_texture,
+				irr::core::rect<s32>(left, top + border_height, left + border_width, bottom - border_height), 
+				irr::core::rect<s32>(0, border_height, border_width, texture_height - border_height),  
+				0, 0, true);
+
+			Driver->draw2DImage(drawn_texture,
+				irr::core::rect<s32>(left + border_width, top + border_height, right - border_width, bottom - border_height), 
+				irr::core::rect<s32>(border_width, border_height, texture_width - border_width, texture_height - border_height),  
+				0, 0, true);
+
+			Driver->draw2DImage(drawn_texture,
+				irr::core::rect<s32>(right - border_width, top + border_height, right, bottom - border_height), 
+				irr::core::rect<s32>(texture_width - border_width, border_height, texture_width, texture_height - border_height),  
+				0, 0, true);
+
+			Driver->draw2DImage(drawn_texture,
+				irr::core::rect<s32>(left, bottom - border_height, left + border_width, bottom), 
+				irr::core::rect<s32>(0, texture_height - border_height, border_width, texture_height),  
+				0, 0, true);
+				
+			Driver->draw2DImage(drawn_texture,
+				irr::core::rect<s32>(left + border_width, bottom - border_height, right - border_width, bottom), 
+				irr::core::rect<s32>(border_width, texture_height - border_height, texture_width - border_width, texture_height),  
+				0, 0, true);
+				
+			Driver->draw2DImage(drawn_texture,
+				irr::core::rect<s32>(right - border_width, bottom - border_height, right, bottom), 
+				irr::core::rect<s32>(texture_width - border_width, texture_height - border_height, texture_width, texture_height),  
+				0, 0, true);
+		}
+	}
+}
 } // end namespace gui
 } // end namespace irr
+
 
 #endif // _IRR_COMPILE_WITH_GUI_
 

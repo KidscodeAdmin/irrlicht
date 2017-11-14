@@ -179,46 +179,43 @@ void CGUIImageTab::drawImage(
 CGUIImageTabControl::CGUIImageTabControl(IGUIEnvironment* environment,
 	IGUIElement* parent, const core::rect<s32>& rectangle,
 	bool show_background, bool show_border, s32 side, s32 id, 
-	s32 tab_height, s32 tab_width, s32 tab_padding, s32 tab_spacing,
-	s32 width, s32 height, s32 border_width, s32 border_height, s32 border_offset,
-	s32 button_width, s32 button_height, 
+	s32 tab_height, s32 tab_width, s32 tab_padding, s32 tab_spacing, 
+	s32 width, s32 height, s32 button_width, s32 button_height, 
 	s32 button_spacing, s32 button_offset, s32 button_distance, 
-	video::ITexture* content_texture, 
-	video::ITexture* top_tab_texture, video::ITexture* top_active_tab_texture,
-	video::ITexture* bottom_tab_texture, video::ITexture* bottom_active_tab_texture,
-	video::ITexture* left_tab_texture, video::ITexture* left_active_tab_texture,
-	video::ITexture* right_tab_texture, video::ITexture* right_active_tab_texture,
-	video::ITexture* prior_arrow_texture, video::ITexture* prior_arrow_pressed_texture, 
-	video::ITexture* next_arrow_texture, video::ITexture* next_arrow_pressed_texture)
+	EGUI_TEXTURE content_texture, EGUI_TEXTURE tab_texture, EGUI_TEXTURE active_tab_texture, 
+	EGUI_TEXTURE prior_arrow_texture, EGUI_TEXTURE prior_arrow_pressed_texture, 
+	EGUI_TEXTURE next_arrow_texture, EGUI_TEXTURE next_arrow_pressed_texture)
 	: IGUITabControl(environment, parent, id, rectangle),  
 	Tabs(), ShowBackground(show_background), ShowBorder(show_border), Side(side),
 	TabHeight(tab_height), TabWidth(tab_width), 
 	TabPadding(tab_padding), TabSpacing(tab_spacing),
-	Width(width), Height(height),
-	BorderWidth(border_width), BorderHeight(border_height), BorderOffset(border_offset),
+	Width(width), Height(height), BorderWidth(0), BorderHeight(0), BorderOffset(0),
 	ButtonWidth(button_width), ButtonHeight(button_height), 
 	ButtonSpacing(button_spacing), ButtonOffset(button_offset), ButtonDistance(button_distance), 
 	VerticalAlignment(EGUIA_UPPERLEFT), 
 	ScrollControl(false), PriorArrow(0), NextArrow(0), ActiveTabIndex(-1), 
-	FirstScrollTabIndex(0), LastScrollTabIndex(-1),	TabContentTexture(content_texture),
-	TopTabTexture(top_tab_texture), TopActiveTabTexture(top_active_tab_texture),
-	BottomTabTexture(bottom_tab_texture), BottomActiveTabTexture(bottom_active_tab_texture),
-	LeftTabTexture(left_tab_texture), LeftActiveTabTexture(left_active_tab_texture),
-	RightTabTexture(right_tab_texture), RightActiveTabTexture(right_active_tab_texture),
+	FirstScrollTabIndex(0), LastScrollTabIndex(-1),	
+	ContentTexture(content_texture), TabTexture(tab_texture), ActiveTabTexture(active_tab_texture), 
 	PriorArrowTexture(prior_arrow_texture), PriorArrowPressedTexture(prior_arrow_pressed_texture), 
 	NextArrowTexture(next_arrow_texture), NextArrowPressedTexture(next_arrow_pressed_texture),
-	ContentRect(0, 0, 0, 0)
+	Skin(0), ContentRect(0, 0, 0, 0)
 {
 	#ifdef _DEBUG
 	setDebugName("CGUIImageTabControl");
 	#endif
 	
+	Skin = environment->getSkin();
+	
+	BorderWidth = Skin->getTextureBorderWidth(TabTexture);
+	BorderHeight = Skin->getTextureBorderHeight(TabTexture);
+	BorderOffset = Skin->getTextureBorderOffset(TabTexture);
+	
 	PriorArrow = Environment->addButton(core::rect<s32>(0,0,10,10), this);
 
 	if ( PriorArrow )
 	{
-        PriorArrow->setImage(PriorArrowTexture);
-        PriorArrow->setPressedImage(PriorArrowPressedTexture);
+        PriorArrow->setImage(Skin->getTexture(PriorArrowTexture));
+        PriorArrow->setPressedImage(Skin->getTexture(PriorArrowPressedTexture));
         PriorArrow->setDrawBorder(false);
         PriorArrow->setScaleImage(true);
 		PriorArrow->setUseAlphaChannel(true);
@@ -233,8 +230,8 @@ CGUIImageTabControl::CGUIImageTabControl(IGUIEnvironment* environment,
 
 	if ( NextArrow )
 	{
-        NextArrow->setImage(NextArrowTexture);
-        NextArrow->setPressedImage(NextArrowPressedTexture);
+        NextArrow->setImage(Skin->getTexture(NextArrowTexture));
+        NextArrow->setPressedImage(Skin->getTexture(NextArrowPressedTexture));
         NextArrow->setDrawBorder(false);
         NextArrow->setScaleImage(true);
 		NextArrow->setUseAlphaChannel(true);
@@ -780,100 +777,31 @@ core::rect<s32> CGUIImageTabControl::calcRelativeRect()
 	return r;
 }
 
-
-//! Draws an expanded image
-void CGUIImageTabControl::drawExpandedImage(const irr::core::rect<s32>& tab_rect, 
-	const video::ITexture *texture, const s32 border_width, const s32 border_height)
-{
-	if (texture)
-	{
-		s32 texture_width = texture->getSize().Width;
-		s32 texture_height = texture->getSize().Height;
-		
-		s32 left = tab_rect.UpperLeftCorner.X;
-		s32 right = tab_rect.LowerRightCorner.X;
-		s32 top = tab_rect.UpperLeftCorner.Y;
-		s32 bottom = tab_rect.LowerRightCorner.Y;
-		
-		video::IVideoDriver* driver = Environment->getVideoDriver();
-
-		driver->draw2DImage(texture,
-			irr::core::rect<s32>(left, top, left + border_width, top + border_height), 
-			irr::core::rect<s32>(0, 0, border_width, border_height), 
-			0, 0, true);
-
-		driver->draw2DImage(texture,
-			irr::core::rect<s32>(left + border_width, top, right - border_width, top + border_height), 
-			irr::core::rect<s32>(border_width, 0, texture_width - border_width, border_height),  
-			0, 0, true);
-
-		driver->draw2DImage(texture,
-			irr::core::rect<s32>(right - border_width, top, right, top + border_height), 
-			irr::core::rect<s32>(texture_width - border_width, 0, texture_width, border_height),  
-			0, 0, true);
-
-		driver->draw2DImage(texture,
-			irr::core::rect<s32>(left, top + border_height, left + border_width, bottom - border_height), 
-			irr::core::rect<s32>(0, border_height, border_width, texture_height - border_height),  
-			0, 0, true);
-
-		driver->draw2DImage(texture,
-			irr::core::rect<s32>(left + border_width, top + border_height, right - border_width, bottom - border_height), 
-			irr::core::rect<s32>(border_width, border_height, texture_width - border_width, texture_height - border_height),  
-			0, 0, true);
-
-		driver->draw2DImage(texture,
-			irr::core::rect<s32>(right - border_width, top + border_height, right, bottom - border_height), 
-			irr::core::rect<s32>(texture_width - border_width, border_height, texture_width, texture_height - border_height),  
-			0, 0, true);
-
-		driver->draw2DImage(texture,
-			irr::core::rect<s32>(left, bottom - border_height, left + border_width, bottom), 
-			irr::core::rect<s32>(0, texture_height - border_height, border_width, texture_height),  
-			0, 0, true);
-			
-		driver->draw2DImage(texture,
-			irr::core::rect<s32>(left + border_width, bottom - border_height, right - border_width, bottom), 
-			irr::core::rect<s32>(border_width, texture_height - border_height, texture_width - border_width, texture_height),  
-			0, 0, true);
-			
-		driver->draw2DImage(texture,
-			irr::core::rect<s32>(right - border_width, bottom - border_height, right, bottom), 
-			irr::core::rect<s32>(texture_width - border_width, texture_height - border_height, texture_width, texture_height),  
-			0, 0, true);
-	}
-}
-
-
 //! Draws a tab
 void CGUIImageTabControl::drawTab(CGUIImageTab* tab, IGUIFont* font)
 {
 	core::rect<s32> tab_rect(tab->DrawnRect);				
 	const wchar_t* text = tab->getText();
-	video::ITexture* tab_texture;
+	EGUI_TEXTURE tab_texture = tab->Active ? ActiveTabTexture : TabTexture;
 
 	if ( Side == 0 )
 	{
 		tab_rect.LowerRightCorner.Y += BorderOffset;
-		tab_texture = tab->Active ? TopActiveTabTexture : TopTabTexture;
 	}
 	else if ( Side == 1 )
 	{
 		tab_rect.UpperLeftCorner.Y -= BorderOffset;
-		tab_texture = tab->Active ? BottomActiveTabTexture : BottomTabTexture;
 	}
 	else if ( Side == 2 )
 	{
 		tab_rect.LowerRightCorner.X += BorderOffset;
-		tab_texture = tab->Active ? LeftActiveTabTexture : LeftTabTexture;
 	}
 	else
 	{
 		tab_rect.UpperLeftCorner.X -= BorderOffset;
-		tab_texture = tab->Active ? RightActiveTabTexture : RightTabTexture;
 	}
 	
-	drawExpandedImage(tab_rect, tab_texture, BorderWidth, BorderHeight);
+	Skin->drawStretchedImage(tab_rect, tab_texture);
 
 	if ( text )
 	{
@@ -920,7 +848,7 @@ void CGUIImageTabControl::draw()
 		}
 	}
 
-	drawExpandedImage(ContentRect, TabContentTexture, BorderWidth, BorderHeight);
+	Skin->drawStretchedImage(ContentRect, ContentTexture);
 	
 	if (activeTab)
 		drawTab(activeTab, font);

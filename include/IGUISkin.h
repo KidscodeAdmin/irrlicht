@@ -8,6 +8,7 @@
 #include "IAttributeExchangingObject.h"
 #include "EGUIAlignment.h"
 #include "SColor.h"
+#include "ITexture.h"
 #include "rect.h"
 
 namespace irr
@@ -114,6 +115,57 @@ namespace gui
 		//! available.
 		EGDC_COUNT
 	};
+
+
+	//! Enumeration for skin textures
+	enum EGUI_TEXTURE // :PATCH::
+	{
+		EGT_NONE,
+		EGT_TAB_CONTENT,
+		EGT_TOP_TAB,
+		EGT_TOP_ACTIVE_TAB,
+		EGT_BOTTOM_TAB,
+		EGT_BOTTOM_ACTIVE_TAB,
+		EGT_LEFT_TAB,
+		EGT_LEFT_ACTIVE_TAB,
+		EGT_RIGHT_TAB,
+		EGT_RIGHT_ACTIVE_TAB,
+		EGT_UP_ARROW,
+		EGT_UP_ARROW_PRESSED,
+		EGT_DOWN_ARROW,
+		EGT_DOWN_ARROW_PRESSED,
+		EGT_LEFT_ARROW,
+		EGT_LEFT_ARROW_PRESSED,
+		EGT_RIGHT_ARROW,
+		EGT_RIGHT_ARROW_PRESSED,
+		EGT_COUNT
+	}; // ::PATCH:
+	
+
+	//! Names for default skin textures
+	const c8* const GUISkinTextureNames[EGT_COUNT+1] =
+	{
+		"",
+		"tab_content.png",
+		"tab_top.png",
+		"tab_top_active.png",
+		"tab_bottom.png",
+		"tab_bottom_active.png",
+		"tab_left.png",
+		"tab_left_active.png",
+		"tab_right.png",
+		"tab_right_active.png",
+		"tab_arrow_up.png",
+		"tab_arrow_up_pressed.png",
+		"tab_arrow_down.png",
+		"tab_arrow_down_pressed.png",
+		"tab_arrow_left.png",
+		"tab_arrow_left_pressed.png",
+		"tab_arrow_right.png",
+		"tab_arrow_right_pressed.png",
+		0
+	};
+	
 
 	//! Names for default skin colors
 	const c8* const GUISkinColorNames[EGDC_COUNT+1] =
@@ -384,6 +436,30 @@ namespace gui
 
 		//! sets a default color
 		virtual void setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor) = 0;
+		
+		//! returns default texture
+		virtual video::ITexture* getTexture(EGUI_TEXTURE texture) const = 0; // :PATCH::
+
+		//! sets a default texture
+		virtual void setTexture(EGUI_TEXTURE which, video::ITexture* newTexture) = 0;
+		
+		//! returns default texture border width
+		virtual s32 getTextureBorderWidth(EGUI_TEXTURE texture) const = 0;
+
+		//! sets a default texture border width
+		virtual void setTextureBorderWidth(EGUI_TEXTURE which, s32 newBorderWidth) = 0;
+		
+		//! returns default texture border height
+		virtual s32 getTextureBorderHeight(EGUI_TEXTURE texture) const = 0;
+
+		//! sets a default texture border height
+		virtual void setTextureBorderHeight(EGUI_TEXTURE which, s32 newBorderHeight) = 0;
+
+		//! returns default texture border offset
+		virtual s32 getTextureBorderOffset(EGUI_TEXTURE texture) const = 0;
+
+		//! sets a default texture border offset
+		virtual void setTextureBorderOffset(EGUI_TEXTURE which, s32 newBorderOffset) = 0; // ::PATCH:
 
 		//! returns size for the given size type
 		virtual s32 getSize(EGUI_DEFAULT_SIZE size) const = 0;
@@ -564,6 +640,10 @@ namespace gui
 
 		//! get the type of this skin
 		virtual EGUI_SKIN_TYPE getType() const { return EGST_UNKNOWN; }
+		
+		//! draws a resized texture
+		virtual void drawStretchedImage(const irr::core::rect<s32>& tab_rect, 
+			const EGUI_TEXTURE texture) = 0; // :PATCH:
 	};
 
 
