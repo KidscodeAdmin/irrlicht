@@ -2,7 +2,7 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#include "CGUITexturedSkin.h"
+#include "CGUICustomSkin.h"
 #ifdef _IRR_COMPILE_WITH_GUI_
 
 #include "IGUIFont.h"
@@ -16,11 +16,11 @@ namespace irr
 namespace gui
 {
 
-CGUITexturedSkin::CGUITexturedSkin(EGUI_SKIN_TYPE type, video::IVideoDriver* driver)
+CGUICustomSkin::CGUICustomSkin(EGUI_SKIN_TYPE type, video::IVideoDriver* driver)
 : SpriteBank(0), Driver(driver), Type(type)
 {
 	#ifdef _DEBUG
-	setDebugName("CGUITexturedSkin");
+	setDebugName("CGUICustomSkin");
 	#endif
 
 	if ((Type == EGST_WINDOWS_CLASSIC) || (Type == EGST_WINDOWS_METALLIC))
@@ -166,7 +166,7 @@ CGUITexturedSkin::CGUITexturedSkin(EGUI_SKIN_TYPE type, video::IVideoDriver* dri
 
 
 //! destructor
-CGUITexturedSkin::~CGUITexturedSkin()
+CGUICustomSkin::~CGUICustomSkin()
 {
 	for (u32 i=0; i<EGDF_COUNT; ++i)
 	{
@@ -180,7 +180,7 @@ CGUITexturedSkin::~CGUITexturedSkin()
 
 
 //! returns default color
-video::SColor CGUITexturedSkin::getColor(EGUI_DEFAULT_COLOR color) const
+video::SColor CGUICustomSkin::getColor(EGUI_DEFAULT_COLOR color) const
 {
 	if ((u32)color < EGDC_COUNT)
 		return Colors[color];
@@ -190,7 +190,7 @@ video::SColor CGUITexturedSkin::getColor(EGUI_DEFAULT_COLOR color) const
 
 
 //! sets a default color
-void CGUITexturedSkin::setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor)
+void CGUICustomSkin::setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor)
 {
 	if ((u32)which < EGDC_COUNT)
 		Colors[which] = newColor;
@@ -198,7 +198,7 @@ void CGUITexturedSkin::setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor
 
 
 //! returns size for the given size type
-s32 CGUITexturedSkin::getSize(EGUI_DEFAULT_SIZE size) const
+s32 CGUICustomSkin::getSize(EGUI_DEFAULT_SIZE size) const
 {
 	if ((u32)size < EGDS_COUNT)
 		return Sizes[size];
@@ -208,7 +208,7 @@ s32 CGUITexturedSkin::getSize(EGUI_DEFAULT_SIZE size) const
 
 
 //! sets a default size
-void CGUITexturedSkin::setSize(EGUI_DEFAULT_SIZE which, s32 size)
+void CGUICustomSkin::setSize(EGUI_DEFAULT_SIZE which, s32 size)
 {
 	if ((u32)which < EGDS_COUNT)
 		Sizes[which] = size;
@@ -216,7 +216,7 @@ void CGUITexturedSkin::setSize(EGUI_DEFAULT_SIZE which, s32 size)
 
 
 //! returns the default font
-IGUIFont* CGUITexturedSkin::getFont(EGUI_DEFAULT_FONT which) const
+IGUIFont* CGUICustomSkin::getFont(EGUI_DEFAULT_FONT which) const
 {
 	if (((u32)which < EGDF_COUNT) && Fonts[which])
 		return Fonts[which];
@@ -226,7 +226,7 @@ IGUIFont* CGUITexturedSkin::getFont(EGUI_DEFAULT_FONT which) const
 
 
 //! sets a default font
-void CGUITexturedSkin::setFont(IGUIFont* font, EGUI_DEFAULT_FONT which)
+void CGUICustomSkin::setFont(IGUIFont* font, EGUI_DEFAULT_FONT which)
 {
 	if ((u32)which >= EGDF_COUNT)
 		return;
@@ -243,14 +243,14 @@ void CGUITexturedSkin::setFont(IGUIFont* font, EGUI_DEFAULT_FONT which)
 
 
 //! gets the sprite bank stored
-IGUISpriteBank* CGUITexturedSkin::getSpriteBank() const
+IGUISpriteBank* CGUICustomSkin::getSpriteBank() const
 {
 	return SpriteBank;
 }
 
 
 //! set a new sprite bank or remove one by passing 0
-void CGUITexturedSkin::setSpriteBank(IGUISpriteBank* bank)
+void CGUICustomSkin::setSpriteBank(IGUISpriteBank* bank)
 {
 	if (bank)
 		bank->grab();
@@ -263,7 +263,7 @@ void CGUITexturedSkin::setSpriteBank(IGUISpriteBank* bank)
 
 
 //! Returns a default icon
-u32 CGUITexturedSkin::getIcon(EGUI_DEFAULT_ICON icon) const
+u32 CGUICustomSkin::getIcon(EGUI_DEFAULT_ICON icon) const
 {
 	if ((u32)icon < EGDI_COUNT)
 		return Icons[icon];
@@ -273,7 +273,7 @@ u32 CGUITexturedSkin::getIcon(EGUI_DEFAULT_ICON icon) const
 
 
 //! Sets a default icon
-void CGUITexturedSkin::setIcon(EGUI_DEFAULT_ICON icon, u32 index)
+void CGUICustomSkin::setIcon(EGUI_DEFAULT_ICON icon, u32 index)
 {
 	if ((u32)icon < EGDI_COUNT)
 		Icons[icon] = index;
@@ -282,7 +282,7 @@ void CGUITexturedSkin::setIcon(EGUI_DEFAULT_ICON icon, u32 index)
 
 //! Returns a default text. For example for Message box button captions:
 //! "OK", "Cancel", "Yes", "No" and so on.
-const wchar_t* CGUITexturedSkin::getDefaultText(EGUI_DEFAULT_TEXT text) const
+const wchar_t* CGUICustomSkin::getDefaultText(EGUI_DEFAULT_TEXT text) const
 {
 	if ((u32)text < EGDT_COUNT)
 		return Texts[text].c_str();
@@ -293,7 +293,7 @@ const wchar_t* CGUITexturedSkin::getDefaultText(EGUI_DEFAULT_TEXT text) const
 
 //! Sets a default text. For example for Message box button captions:
 //! "OK", "Cancel", "Yes", "No" and so on.
-void CGUITexturedSkin::setDefaultText(EGUI_DEFAULT_TEXT which, const wchar_t* newText)
+void CGUICustomSkin::setDefaultText(EGUI_DEFAULT_TEXT which, const wchar_t* newText)
 {
 	if ((u32)which < EGDT_COUNT)
 		Texts[which] = newText;
@@ -309,7 +309,7 @@ EGDC_3D_FACE for this. See EGUI_DEFAULT_COLOR for details.
 \param element: Pointer to the element which wishes to draw this. This parameter
 is usually not used by ISkin, but can be used for example by more complex
 implementations to find out how to draw the part exactly. */
-void CGUITexturedSkin::draw3DButtonPaneStandard(IGUIElement* element,
+void CGUICustomSkin::draw3DButtonPaneStandard(IGUIElement* element,
 					const core::rect<s32>& r,
 					const core::rect<s32>* clip)
 {
@@ -365,7 +365,7 @@ EGDC_3D_FACE for this. See EGUI_DEFAULT_COLOR for details.
 \param element: Pointer to the element which wishes to draw this. This parameter
 is usually not used by ISkin, but can be used for example by more complex
 implementations to find out how to draw the part exactly. */
-void CGUITexturedSkin::draw3DButtonPanePressed(IGUIElement* element,
+void CGUICustomSkin::draw3DButtonPanePressed(IGUIElement* element,
 					const core::rect<s32>& r,
 					const core::rect<s32>* clip)
 {
@@ -409,7 +409,7 @@ implementations to find out how to draw the part exactly.
 deep into the ground.
 \param rect: Defining area where to draw.
 \param clip: Clip area.	*/
-void CGUITexturedSkin::draw3DSunkenPane(IGUIElement* element, video::SColor bgcolor,
+void CGUICustomSkin::draw3DSunkenPane(IGUIElement* element, video::SColor bgcolor,
 				bool flat, bool fillBackGround,
 				const core::rect<s32>& r,
 				const core::rect<s32>* clip)
@@ -493,7 +493,7 @@ void CGUITexturedSkin::draw3DSunkenPane(IGUIElement* element, video::SColor bgco
 
 //! draws a window background
 // return where to draw title bar text.
-core::rect<s32> CGUITexturedSkin::draw3DWindowBackground(IGUIElement* element,
+core::rect<s32> CGUICustomSkin::draw3DWindowBackground(IGUIElement* element,
 				bool drawTitleBar, video::SColor titleBarColor,
 				const core::rect<s32>& r,
 				const core::rect<s32>* clip,
@@ -642,7 +642,7 @@ is usually not used by ISkin, but can be used for example by more complex
 implementations to find out how to draw the part exactly.
 \param rect: Defining area where to draw.
 \param clip: Clip area.	*/
-void CGUITexturedSkin::draw3DMenuPane(IGUIElement* element,
+void CGUICustomSkin::draw3DMenuPane(IGUIElement* element,
 			const core::rect<s32>& r, const core::rect<s32>* clip)
 {
 	if (!Driver)
@@ -720,7 +720,7 @@ is usually not used by ISkin, but can be used for example by more complex
 implementations to find out how to draw the part exactly.
 \param rect: Defining area where to draw.
 \param clip: Clip area.	*/
-void CGUITexturedSkin::draw3DToolBar(IGUIElement* element,
+void CGUICustomSkin::draw3DToolBar(IGUIElement* element,
 				const core::rect<s32>& r,
 				const core::rect<s32>* clip)
 {
@@ -768,7 +768,7 @@ implementations to find out how to draw the part exactly.
 \param active: Specifies if the tab is currently active.
 \param rect: Defining area where to draw.
 \param clip: Clip area.	*/
-void CGUITexturedSkin::draw3DTabButton(IGUIElement* element, bool active,
+void CGUICustomSkin::draw3DTabButton(IGUIElement* element, bool active,
 	const core::rect<s32>& frameRect, const core::rect<s32>* clip, EGUI_ALIGNMENT alignment)
 {
 	if (!Driver)
@@ -849,7 +849,7 @@ implementations to find out how to draw the part exactly.
 \param background: Specifies if the background should be drawn.
 \param rect: Defining area where to draw.
 \param clip: Clip area.	*/
-void CGUITexturedSkin::draw3DTabBody(IGUIElement* element, bool border, bool background,
+void CGUICustomSkin::draw3DTabBody(IGUIElement* element, bool border, bool background,
 	const core::rect<s32>& rect, const core::rect<s32>* clip, s32 tabHeight, EGUI_ALIGNMENT alignment)
 {
 	if (!Driver)
@@ -941,7 +941,7 @@ by more complex implementations to find out how to draw the part exactly.
 \param currenttime: The present time, used to calculate the frame number
 \param loop: Whether the animation should loop or not
 \param clip: Clip area.	*/
-void CGUITexturedSkin::drawIcon(IGUIElement* element, EGUI_DEFAULT_ICON icon,
+void CGUICustomSkin::drawIcon(IGUIElement* element, EGUI_DEFAULT_ICON icon,
 			const core::position2di position,
 			u32 starttime, u32 currenttime,
 			bool loop, const core::rect<s32>* clip)
@@ -955,14 +955,14 @@ void CGUITexturedSkin::drawIcon(IGUIElement* element, EGUI_DEFAULT_ICON icon,
 }
 
 
-EGUI_SKIN_TYPE CGUITexturedSkin::getType() const
+EGUI_SKIN_TYPE CGUICustomSkin::getType() const
 {
 	return Type;
 }
 
 
 //! draws a 2d rectangle.
-void CGUITexturedSkin::draw2DRectangle(IGUIElement* element,
+void CGUICustomSkin::draw2DRectangle(IGUIElement* element,
 		const video::SColor &color, const core::rect<s32>& pos,
 		const core::rect<s32>* clip)
 {
@@ -973,7 +973,7 @@ void CGUITexturedSkin::draw2DRectangle(IGUIElement* element,
 //! Writes attributes of the object.
 //! Implement this to expose the attributes of your scene node animator for
 //! scripting languages, editors, debuggers or xml serialization purposes.
-void CGUITexturedSkin::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
+void CGUICustomSkin::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
 {
 	u32 i;
 	for (i=0; i<EGDC_COUNT; ++i)
@@ -993,7 +993,7 @@ void CGUITexturedSkin::serializeAttributes(io::IAttributes* out, io::SAttributeR
 //! Reads attributes of the object.
 //! Implement this to set the attributes of your scene node animator for
 //! scripting languages, editors, debuggers or xml deserialization purposes.
-void CGUITexturedSkin::deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options)
+void CGUICustomSkin::deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options)
 {
 	// TODO: This is not nice code for downward compatibility, whenever new values are added and users
 	// load an old skin the corresponding values will be set to 0.

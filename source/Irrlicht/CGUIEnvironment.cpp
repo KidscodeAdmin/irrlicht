@@ -9,7 +9,7 @@
 
 #include "IVideoDriver.h"
 
-#include "CGUISkin.h"
+#include "CGUICustomSkin.h" // :PATCH:
 #include "CGUIButton.h"
 #include "CGUIWindow.h"
 #include "CGUIScrollBar.h"
@@ -637,7 +637,7 @@ If you no longer need the skin, you should call IGUISkin::drop().
 See IReferenceCounted::drop() for more information. */
 IGUISkin* CGUIEnvironment::createSkin(EGUI_SKIN_TYPE type)
 {
-	IGUISkin* skin = new CGUISkin(type, Driver);
+	IGUISkin* skin = new CGUICustomSkin(type, Driver); // :PATCH:
 
 	IGUIFont* builtinfont = getBuiltInFont();
 	IGUIFontBitmap* bitfont = 0;

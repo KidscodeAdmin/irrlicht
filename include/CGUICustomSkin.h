@@ -20,14 +20,14 @@ namespace video
 namespace gui
 {
 
-	class CGUITexturedSkin : public IGUISkin
+	class CGUICustomSkin : public IGUISkin
 	{
 	public:
 
-		CGUITexturedSkin(EGUI_SKIN_TYPE type, video::IVideoDriver* driver);
+		CGUICustomSkin(EGUI_SKIN_TYPE type, video::IVideoDriver* driver);
 
 		//! destructor
-		virtual ~CGUITexturedSkin();
+		virtual ~CGUICustomSkin();
 
 		//! returns default color
 		virtual video::SColor getColor(EGUI_DEFAULT_COLOR color) const;
