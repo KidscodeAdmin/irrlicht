@@ -15,22 +15,22 @@ namespace irr
 {
 namespace gui
 {
-	class CGUITexturedTabControl;
+	class CGUIImageTabControl;
 	class IGUIButton;
 
 	// A tab, onto which other gui elements could be added.
-	class CGUITexturedTab : public IGUITab
+	class CGUIImageTab : public IGUITab
 	{
 	public:
 
 		//! constructor
-		CGUITexturedTab(s32 number, IGUIEnvironment* environment,
+		CGUIImageTab(s32 number, IGUIEnvironment* environment,
 			IGUIElement* parent, const core::rect<s32>& rectangle,
 			s32 id, 
 			video::ITexture *texture=0, f32 scaling=1.0f, s32 side=0);
 
 		//! destructor
-		//virtual ~CGUITexturedTab();
+		//virtual ~CGUIImageTab();
 
 		//! Returns number of this tab in tabcontrol. Can be accessed
 		//! later IGUITabControl::getTab() by this number.
@@ -65,7 +65,7 @@ namespace gui
 		//! Reads attributes of the element
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options);
 
-		//! only for internal use by CGUITexturedTabControl
+		//! only for internal use by CGUIImageTabControl
 		void refreshSkinColors();
 		void drawImage(const irr::core::rect<s32>& tab_rect);
 		
@@ -84,12 +84,12 @@ namespace gui
 
 
 	//! A standard tab control
-	class CGUITexturedTabControl : public IGUITabControl
+	class CGUIImageTabControl : public IGUITabControl
 	{
 	public:
 
 		//! destructor
-		CGUITexturedTabControl(IGUIEnvironment* environment, 
+		CGUIImageTabControl(IGUIEnvironment* environment, 
 			IGUIElement* parent, const core::rect<s32>& rectangle,
 			bool show_background, bool show_border, s32 side, s32 id, 
 			s32 tab_height, s32 tab_width, s32 tab_padding, s32 tab_spacing, 
@@ -104,17 +104,17 @@ namespace gui
 			video::ITexture* next_arrow_texture, video::ITexture* next_arrow_pressed_texture);
 			
 		//! destructor
-		virtual ~CGUITexturedTabControl();
+		virtual ~CGUIImageTabControl();
 
 		//! Adds a tab
 		virtual IGUITab * addTab(const wchar_t* caption, s32 id=-1);
 		
 		//! Adds an image tab
-		virtual CGUITexturedTab* addImageTab(const wchar_t* caption, s32 id=-1, 
+		virtual CGUIImageTab* addImageTab(const wchar_t* caption, s32 id=-1, 
 			video::ITexture* texture=0, f32 scaling=1.0f);
 
 		//! Adds a tab that has already been created
-		virtual void addTab(CGUITexturedTab* tab);
+		virtual void addTab(CGUIImageTab* tab);
 
 		//! Insert the tab at the given index
 		virtual IGUITab* insertTab(s32 idx, const wchar_t* caption, s32 id=-1);
@@ -213,16 +213,16 @@ namespace gui
 		void scrollLeft();
 		void scrollRight();
 		s32 calcTabWidth(s32 pos, IGUIFont* font, const wchar_t* text, bool withScrollControl,
-			CGUITexturedTab* tab) const;
+			CGUIImageTab* tab) const;
 		void calcTabs();
 		void calcScrollButtons();
 		core::rect<s32> calcRelativeRect();
 		void drawExpandedImage(const irr::core::rect<s32>& tab_rect, 
 			const video::ITexture *texture, const s32 border_width, const s32 border_height);
-		void drawTab(CGUITexturedTab* tab, IGUIFont* font);
+		void drawTab(CGUIImageTab* tab, IGUIFont* font);
 		void refreshSprites();
 
-		core::array<CGUITexturedTab*> Tabs;	// CGUITexturedTab* because we need setNumber (which is certainly not nice)
+		core::array<CGUIImageTab*> Tabs;	// CGUIImageTab* because we need setNumber (which is certainly not nice)
 		bool ShowBackground;
 		bool ShowBorder;
 		s32 Side;
