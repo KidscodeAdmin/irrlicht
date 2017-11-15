@@ -26,7 +26,8 @@ CGUIScrollBar::CGUIScrollBar(bool horizontal, IGUIEnvironment* environment,
 	: IGUIScrollBar(environment, parent, id, rectangle), UpButton(0),
 	DownButton(0), Dragging(false), Horizontal(horizontal),
 	DraggedBySlider(false), TrayClick(false), Pos(0), DrawPos(0),
-	DrawHeight(0), Min(0), Max(100), SmallStep(10), LargeStep(50), DesiredPos(0),
+	DrawHeight(0), Min(0), Max(100), 
+	BaseStep(1), SmallStep(10), LargeStep(50), DesiredPos(0), // :PATCH:
 	LastChange(0)
 {
 	#ifdef _DEBUG
@@ -347,7 +348,7 @@ s32 CGUIScrollBar::getPosFromMousePos(const core::position2di &pos) const
 //! sets the position of the scrollbar
 void CGUIScrollBar::setPos(s32 pos)
 {
-	Pos = core::s32_clamp ( pos, Min, Max );
+	Pos = core::s32_clamp((pos / BaseStep) * BaseStep, Min, Max); // :PATCH:
 
 	if (Horizontal)
 	{
@@ -363,6 +364,23 @@ void CGUIScrollBar::setPos(s32 pos)
 		DrawHeight = RelativeRect.getWidth();
 	}
 
+}
+
+
+//! gets the base step value
+s32 CGUIScrollBar::getBaseStep() const // :PATCH:
+{
+	return BaseStep;
+}
+
+
+//! sets the base step value
+void CGUIScrollBar::setBaseStep(s32 step) // :PATCH:
+{
+	if (step > 0)
+		BaseStep = step;
+	else
+		BaseStep = 1;
 }
 
 

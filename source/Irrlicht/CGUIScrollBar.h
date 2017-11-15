@@ -49,6 +49,12 @@ namespace gui
 		//! sets the minimum value of the scrollbar.
 		virtual void setMin(s32 min);
 
+		//! gets the base step value
+		virtual s32 getBaseStep() const; // :PATCH:
+
+		//! sets the base step value
+		virtual void setBaseStep(s32 step); // :PATCH:
+		
 		//! gets the small step value
 		virtual s32 getSmallStep() const;
 
@@ -95,6 +101,7 @@ namespace gui
 		s32 DrawHeight;
 		s32 Min;
 		s32 Max;
+		s32 BaseStep; // :PATCH:
 		s32 SmallStep;
 		s32 LargeStep;
 		s32 DesiredPos;
