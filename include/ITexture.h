@@ -5,6 +5,7 @@
 #ifndef __I_TEXTURE_H_INCLUDED__
 #define __I_TEXTURE_H_INCLUDED__
 
+#include <string>
 #include "IReferenceCounted.h"
 #include "IImage.h"
 #include "dimension2d.h"
@@ -211,7 +212,16 @@ protected:
 	io::SNamedPath NamedPath;
 };
 
+class ITextureLoader // :PATCH:
+{
+public:
+	ITextureLoader() {};
 
+	virtual ~ITextureLoader() {};
+
+	virtual video::ITexture* getTexture(
+			const std::string &name, u32 *id = 0) = 0;
+};
 } // end namespace video
 } // end namespace irr
 
