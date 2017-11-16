@@ -34,30 +34,6 @@ namespace gui
 
 		//! sets a default color
 		virtual void setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor);
-		
-		//! returns default texture
-		virtual video::ITexture* getTexture(EGUI_TEXTURE texture) const;
-
-		//! sets a default texture
-		virtual void setTexture(EGUI_TEXTURE which, video::ITexture* newTexture);
-		
-		//! returns default texture border width
-		virtual s32 getTextureBorderWidth(EGUI_TEXTURE texture) const;
-
-		//! sets a default texture border width
-		virtual void setTextureBorderWidth(EGUI_TEXTURE which, s32 newBorderWidth);
-		
-		//! returns default texture border height
-		virtual s32 getTextureBorderHeight(EGUI_TEXTURE texture) const;
-
-		//! sets a default texture border height
-		virtual void setTextureBorderHeight(EGUI_TEXTURE which, s32 newBorderHeight);
-
-		//! returns default texture border offset
-		virtual s32 getTextureBorderOffset(EGUI_TEXTURE texture) const;
-
-		//! sets a default texture border offset
-		virtual void setTextureBorderOffset(EGUI_TEXTURE which, s32 newBorderOffset);
 
 		//! returns size for the given size type
 		virtual s32 getSize(EGUI_DEFAULT_SIZE size) const;
@@ -248,18 +224,25 @@ namespace gui
 		//! scripting languages, editors, debuggers or xml deserialization purposes.
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0);
 		
-		//! draws a resized texture
-		virtual void drawStretchedImage(const irr::core::rect<s32>& tab_rect, 
-			const EGUI_TEXTURE texture);
+		
+		//! returns the texture loader
+		virtual video::ITextureLoader* getTextureLoader() const;
+
+		//! sets the texture loader
+		virtual void setTextureLoader(video::ITextureLoader* newTextureLoader);
+		
+		//! gets a texture
+		virtual video::ITexture* getTexture(const std::string& name, 
+			video::ITextureLoader* texture_loader=0) const;
+		
+		//! draws a stretched image
+		virtual void drawStretchedImage(const irr::core::rect<s32>& drawn_rect, 
+			const video::ITexture* drawn_texture, s32 border_width=16, s32 border_height=16);
 
 
 	private:
 
 		video::SColor Colors[EGDC_COUNT];
-		video::ITexture* Textures[EGT_COUNT]; // :PATCH::
-		s32 TextureBorderWidths[EGT_COUNT];
-		s32 TextureBorderHeights[EGT_COUNT];
-		s32 TextureBorderOffsets[EGT_COUNT]; // ::PATCH:
 		s32 Sizes[EGDS_COUNT];
 		u32 Icons[EGDI_COUNT];
 		IGUIFont* Fonts[EGDF_COUNT];
@@ -269,6 +252,8 @@ namespace gui
 		bool UseGradient;
 
 		EGUI_SKIN_TYPE Type;
+		
+		video::ITextureLoader* TextureLoader;
 	};
 
 

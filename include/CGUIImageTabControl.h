@@ -93,11 +93,11 @@ namespace gui
 			IGUIElement* parent, const core::rect<s32>& rectangle,
 			bool show_background, bool show_border, s32 side, s32 id, 
 			s32 tab_height, s32 tab_width, s32 tab_padding, s32 tab_spacing, 
-			s32 width, s32 height, s32 button_width, s32 button_height, 
-			s32 button_spacing, s32 button_offset, s32 button_distance, 
-			EGUI_TEXTURE content_texture, EGUI_TEXTURE tab_texture, EGUI_TEXTURE active_tab_texture,  
-			EGUI_TEXTURE prior_arrow_texture, EGUI_TEXTURE prior_arrow_pressed_texture, 
-			EGUI_TEXTURE next_arrow_texture, EGUI_TEXTURE next_arrow_pressed_texture);
+			s32 width, s32 height, s32 border_width, s32 border_height, s32 border_offset,
+			s32 button_width, s32 button_height, s32 button_spacing, s32 button_offset, s32 button_distance, 
+			video::ITexture* content_texture, video::ITexture* tab_texture, video::ITexture* active_tab_texture,  
+			video::ITexture* prior_arrow_texture, video::ITexture* prior_arrow_pressed_texture, 
+			video::ITexture* next_arrow_texture, video::ITexture* next_arrow_pressed_texture);
 			
 		//! destructor
 		virtual ~CGUIImageTabControl();
@@ -245,13 +245,13 @@ namespace gui
 		s32 FirstScrollTabIndex;
 		s32 LastScrollTabIndex;
 		IGUISkin * Skin;
-		EGUI_TEXTURE ContentTexture;
-		EGUI_TEXTURE TabTexture;
-		EGUI_TEXTURE ActiveTabTexture;
-		EGUI_TEXTURE PriorArrowTexture;
-		EGUI_TEXTURE PriorArrowPressedTexture;
-		EGUI_TEXTURE NextArrowTexture;
-		EGUI_TEXTURE NextArrowPressedTexture;
+		video::ITexture* ContentTexture;
+		video::ITexture* TabTexture;
+		video::ITexture* ActiveTabTexture;
+		video::ITexture* PriorArrowTexture;
+		video::ITexture* PriorArrowPressedTexture;
+		video::ITexture* NextArrowTexture;
+		video::ITexture* NextArrowPressedTexture;
 		irr::core::rect<s32> ContentRect;
 	};
 } // end namespace gui

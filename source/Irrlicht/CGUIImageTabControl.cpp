@@ -180,25 +180,25 @@ CGUIImageTabControl::CGUIImageTabControl(IGUIEnvironment* environment,
 	IGUIElement* parent, const core::rect<s32>& rectangle,
 	bool show_background, bool show_border, s32 side, s32 id, 
 	s32 tab_height, s32 tab_width, s32 tab_padding, s32 tab_spacing, 
-	s32 width, s32 height, s32 button_width, s32 button_height, 
-	s32 button_spacing, s32 button_offset, s32 button_distance, 
-	EGUI_TEXTURE content_texture, EGUI_TEXTURE tab_texture, EGUI_TEXTURE active_tab_texture, 
-	EGUI_TEXTURE prior_arrow_texture, EGUI_TEXTURE prior_arrow_pressed_texture, 
-	EGUI_TEXTURE next_arrow_texture, EGUI_TEXTURE next_arrow_pressed_texture)
+	s32 width, s32 height, s32 border_width, s32 border_height, s32 border_offset,
+	s32 button_width, s32 button_height, s32 button_spacing, s32 button_offset, s32 button_distance, 
+	video::ITexture* content_texture, video::ITexture* tab_texture, video::ITexture* active_tab_texture, 
+	video::ITexture* prior_arrow_texture, video::ITexture* prior_arrow_pressed_texture, 
+	video::ITexture* next_arrow_texture, video::ITexture* next_arrow_pressed_texture)
 	: IGUITabControl(environment, parent, id, rectangle),  
 	Tabs(), ShowBackground(show_background), ShowBorder(show_border), Side(side),
 	TabHeight(tab_height), TabWidth(tab_width), 
 	TabPadding(tab_padding), TabSpacing(tab_spacing),
-	Width(width), Height(height), BorderWidth(0), BorderHeight(0), BorderOffset(0),
+	Width(width), Height(height), BorderWidth(border_width), BorderHeight(border_height), BorderOffset(border_offset),
 	ButtonWidth(button_width), ButtonHeight(button_height), 
 	ButtonSpacing(button_spacing), ButtonOffset(button_offset), ButtonDistance(button_distance), 
 	VerticalAlignment(EGUIA_UPPERLEFT), 
 	ScrollControl(false), PriorArrow(0), NextArrow(0), ActiveTabIndex(-1), 
-	FirstScrollTabIndex(0), LastScrollTabIndex(-1),	
+	FirstScrollTabIndex(0), LastScrollTabIndex(-1),	Skin(0), 
 	ContentTexture(content_texture), TabTexture(tab_texture), ActiveTabTexture(active_tab_texture), 
 	PriorArrowTexture(prior_arrow_texture), PriorArrowPressedTexture(prior_arrow_pressed_texture), 
 	NextArrowTexture(next_arrow_texture), NextArrowPressedTexture(next_arrow_pressed_texture),
-	Skin(0), ContentRect(0, 0, 0, 0)
+	ContentRect(0, 0, 0, 0)
 {
 	#ifdef _DEBUG
 	setDebugName("CGUIImageTabControl");
@@ -206,16 +206,12 @@ CGUIImageTabControl::CGUIImageTabControl(IGUIEnvironment* environment,
 	
 	Skin = environment->getSkin();
 	
-	BorderWidth = Skin->getTextureBorderWidth(TabTexture);
-	BorderHeight = Skin->getTextureBorderHeight(TabTexture);
-	BorderOffset = Skin->getTextureBorderOffset(TabTexture);
-	
 	PriorArrow = Environment->addButton(core::rect<s32>(0,0,10,10), this);
 
 	if ( PriorArrow )
 	{
-        PriorArrow->setImage(Skin->getTexture(PriorArrowTexture));
-        PriorArrow->setPressedImage(Skin->getTexture(PriorArrowPressedTexture));
+        PriorArrow->setImage(PriorArrowTexture);
+        PriorArrow->setPressedImage(PriorArrowPressedTexture);
         PriorArrow->setDrawBorder(false);
         PriorArrow->setScaleImage(true);
 		PriorArrow->setUseAlphaChannel(true);
@@ -230,8 +226,8 @@ CGUIImageTabControl::CGUIImageTabControl(IGUIEnvironment* environment,
 
 	if ( NextArrow )
 	{
-        NextArrow->setImage(Skin->getTexture(NextArrowTexture));
-        NextArrow->setPressedImage(Skin->getTexture(NextArrowPressedTexture));
+        NextArrow->setImage(NextArrowTexture);
+        NextArrow->setPressedImage(NextArrowPressedTexture);
         NextArrow->setDrawBorder(false);
         NextArrow->setScaleImage(true);
 		NextArrow->setUseAlphaChannel(true);
@@ -782,7 +778,7 @@ void CGUIImageTabControl::drawTab(CGUIImageTab* tab, IGUIFont* font)
 {
 	core::rect<s32> tab_rect(tab->DrawnRect);				
 	const wchar_t* text = tab->getText();
-	EGUI_TEXTURE tab_texture = tab->Active ? ActiveTabTexture : TabTexture;
+	video::ITexture* tab_texture = tab->Active ? ActiveTabTexture : TabTexture;
 
 	if ( Side == 0 )
 	{
