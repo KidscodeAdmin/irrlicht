@@ -839,7 +839,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\CGUICustomSkin.h" />
     <ClInclude Include="..\..\include\CGUIImageTabControl.h" />
     <ClInclude Include="..\..\include\EDriverFeatures.h" />
     <ClInclude Include="..\..\include\EMaterialFlags.h" />
@@ -1248,7 +1247,6 @@
     <None Include="..\..\readme.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CGUICustomSkin.cpp" />
     <ClCompile Include="CGUIImageTabControl.cpp" />
     <ClCompile Include="CCgMaterialRenderer.cpp" />
     <ClCompile Include="CD3D9CgMaterialRenderer.cpp" />

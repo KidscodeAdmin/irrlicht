@@ -17,7 +17,7 @@ namespace gui
 {
 
 CGUISkin::CGUISkin(EGUI_SKIN_TYPE type, video::IVideoDriver* driver)
-: SpriteBank(0), Driver(driver), Type(type)
+: SpriteBank(0), Driver(driver), Type(type), TextureLoader(0)
 {
 	#ifdef _DEBUG
 	setDebugName("CGUISkin");
@@ -112,7 +112,7 @@ CGUISkin::CGUISkin(EGUI_SKIN_TYPE type, video::IVideoDriver* driver)
 		Sizes[EGDS_TITLEBARTEXT_DISTANCE_X] = 3;
 		Sizes[EGDS_TITLEBARTEXT_DISTANCE_Y] = 2;
 	}
-
+		
 	Sizes[EGDS_MESSAGE_BOX_GAP_SPACE] = 15;
 	Sizes[EGDS_MESSAGE_BOX_MIN_TEXT_WIDTH] = 0;
 	Sizes[EGDS_MESSAGE_BOX_MAX_TEXT_WIDTH] = 500;
@@ -311,7 +311,8 @@ is usually not used by ISkin, but can be used for example by more complex
 implementations to find out how to draw the part exactly. */
 void CGUISkin::draw3DButtonPaneStandard(IGUIElement* element,
 					const core::rect<s32>& r,
-					const core::rect<s32>* clip)
+					const core::rect<s32>* clip,
+					const video::SColor* colors)
 {
 	if (!Driver)
 		return;
@@ -367,7 +368,8 @@ is usually not used by ISkin, but can be used for example by more complex
 implementations to find out how to draw the part exactly. */
 void CGUISkin::draw3DButtonPanePressed(IGUIElement* element,
 					const core::rect<s32>& r,
-					const core::rect<s32>* clip)
+					const core::rect<s32>* clip,
+					const video::SColor* colors)
 {
 	if (!Driver)
 		return;
@@ -412,7 +414,8 @@ deep into the ground.
 void CGUISkin::draw3DSunkenPane(IGUIElement* element, video::SColor bgcolor,
 				bool flat, bool fillBackGround,
 				const core::rect<s32>& r,
-				const core::rect<s32>* clip)
+				const core::rect<s32>* clip,
+				const video::SColor* colors)
 {
 	if (!Driver)
 		return;
@@ -497,7 +500,8 @@ core::rect<s32> CGUISkin::draw3DWindowBackground(IGUIElement* element,
 				bool drawTitleBar, video::SColor titleBarColor,
 				const core::rect<s32>& r,
 				const core::rect<s32>* clip,
-				core::rect<s32>* checkClientArea)
+				core::rect<s32>* checkClientArea,
+				const video::SColor* colors)
 {
 	if (!Driver)
 	{
@@ -643,7 +647,8 @@ implementations to find out how to draw the part exactly.
 \param rect: Defining area where to draw.
 \param clip: Clip area.	*/
 void CGUISkin::draw3DMenuPane(IGUIElement* element,
-			const core::rect<s32>& r, const core::rect<s32>* clip)
+			const core::rect<s32>& r, const core::rect<s32>* clip,
+			const video::SColor* colors)
 {
 	if (!Driver)
 		return;
@@ -722,7 +727,8 @@ implementations to find out how to draw the part exactly.
 \param clip: Clip area.	*/
 void CGUISkin::draw3DToolBar(IGUIElement* element,
 				const core::rect<s32>& r,
-				const core::rect<s32>* clip)
+				const core::rect<s32>* clip,
+				const video::SColor* colors)
 {
 	if (!Driver)
 		return;
@@ -769,7 +775,8 @@ implementations to find out how to draw the part exactly.
 \param rect: Defining area where to draw.
 \param clip: Clip area.	*/
 void CGUISkin::draw3DTabButton(IGUIElement* element, bool active,
-	const core::rect<s32>& frameRect, const core::rect<s32>* clip, EGUI_ALIGNMENT alignment)
+	const core::rect<s32>& frameRect, const core::rect<s32>* clip, EGUI_ALIGNMENT alignment,
+	const video::SColor* colors)
 {
 	if (!Driver)
 		return;
@@ -850,7 +857,8 @@ implementations to find out how to draw the part exactly.
 \param rect: Defining area where to draw.
 \param clip: Clip area.	*/
 void CGUISkin::draw3DTabBody(IGUIElement* element, bool border, bool background,
-	const core::rect<s32>& rect, const core::rect<s32>* clip, s32 tabHeight, EGUI_ALIGNMENT alignment)
+	const core::rect<s32>& rect, const core::rect<s32>* clip, s32 tabHeight, EGUI_ALIGNMENT alignment,
+	const video::SColor* colors)
 {
 	if (!Driver)
 		return;
@@ -1012,8 +1020,96 @@ void CGUISkin::deserializeAttributes(io::IAttributes* in, io::SAttributeReadWrit
 }
 
 
+//! returns the texture loader
+video::ITextureLoader* CGUISkin::getTextureLoader() const
+{
+	return TextureLoader;
+}
+
+
+//! sets the texture loader
+void CGUISkin::setTextureLoader(video::ITextureLoader* newTextureLoader)
+{
+	TextureLoader = newTextureLoader;
+}
+
+
+//! gets a texture
+video::ITexture* CGUISkin::getTexture(const std::string& name, 
+	video::ITextureLoader* texture_loader) const
+{
+	if (texture_loader)
+		return texture_loader->getTexture(name);
+		
+	if (TextureLoader)
+		return TextureLoader->getTexture(name);
+		
+	return 0;
+}
+
+//! draws a stretched image
+void CGUISkin::drawStretchedImage(const irr::core::rect<s32>& drawn_rect, 
+	const video::ITexture* drawn_texture, s32 border_width, s32 border_height)
+{
+	if (drawn_texture)
+	{
+		s32 texture_width = drawn_texture->getSize().Width;
+		s32 texture_height = drawn_texture->getSize().Height;
+		
+		s32 left = drawn_rect.UpperLeftCorner.X;
+		s32 right = drawn_rect.LowerRightCorner.X;
+		s32 top = drawn_rect.UpperLeftCorner.Y;
+		s32 bottom = drawn_rect.LowerRightCorner.Y;
+		
+		Driver->draw2DImage(drawn_texture,
+			irr::core::rect<s32>(left, top, left + border_width, top + border_height), 
+			irr::core::rect<s32>(0, 0, border_width, border_height), 
+			0, 0, true);
+
+		Driver->draw2DImage(drawn_texture,
+			irr::core::rect<s32>(left + border_width, top, right - border_width, top + border_height), 
+			irr::core::rect<s32>(border_width, 0, texture_width - border_width, border_height),  
+			0, 0, true);
+
+		Driver->draw2DImage(drawn_texture,
+			irr::core::rect<s32>(right - border_width, top, right, top + border_height), 
+			irr::core::rect<s32>(texture_width - border_width, 0, texture_width, border_height),  
+			0, 0, true);
+
+		Driver->draw2DImage(drawn_texture,
+			irr::core::rect<s32>(left, top + border_height, left + border_width, bottom - border_height), 
+			irr::core::rect<s32>(0, border_height, border_width, texture_height - border_height),  
+			0, 0, true);
+
+		Driver->draw2DImage(drawn_texture,
+			irr::core::rect<s32>(left + border_width, top + border_height, right - border_width, bottom - border_height), 
+			irr::core::rect<s32>(border_width, border_height, texture_width - border_width, texture_height - border_height),  
+			0, 0, true);
+
+		Driver->draw2DImage(drawn_texture,
+			irr::core::rect<s32>(right - border_width, top + border_height, right, bottom - border_height), 
+			irr::core::rect<s32>(texture_width - border_width, border_height, texture_width, texture_height - border_height),  
+			0, 0, true);
+
+		Driver->draw2DImage(drawn_texture,
+			irr::core::rect<s32>(left, bottom - border_height, left + border_width, bottom), 
+			irr::core::rect<s32>(0, texture_height - border_height, border_width, texture_height),  
+			0, 0, true);
+			
+		Driver->draw2DImage(drawn_texture,
+			irr::core::rect<s32>(left + border_width, bottom - border_height, right - border_width, bottom), 
+			irr::core::rect<s32>(border_width, texture_height - border_height, texture_width - border_width, texture_height),  
+			0, 0, true);
+			
+		Driver->draw2DImage(drawn_texture,
+			irr::core::rect<s32>(right - border_width, bottom - border_height, right, bottom), 
+			irr::core::rect<s32>(texture_width - border_width, texture_height - border_height, texture_width, texture_height),  
+			0, 0, true);
+	}
+}
 } // end namespace gui
 } // end namespace irr
+
 
 #endif // _IRR_COMPILE_WITH_GUI_
 

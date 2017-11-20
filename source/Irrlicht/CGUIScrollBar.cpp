@@ -27,8 +27,9 @@ CGUIScrollBar::CGUIScrollBar(bool horizontal, IGUIEnvironment* environment,
 	DownButton(0), Dragging(false), Horizontal(horizontal),
 	DraggedBySlider(false), TrayClick(false), Pos(0), DrawPos(0),
 	DrawHeight(0), Min(0), Max(100), 
-	BaseStep(1), SmallStep(10), LargeStep(50), DesiredPos(0), // :PATCH:
-	LastChange(0)
+	BaseStep(1), SmallStep(10), LargeStep(50), DesiredPos(0), // :PATCH::
+	LastChange(0), CurrentIconColor(0,0,0,0),
+	HasCustomColors(false), BarColor(101,230,230,230), ButtonColor(101,230,230,230)  // ::PATCH:
 {
 	#ifdef _DEBUG
 	setDebugName("CGUIScrollBar");

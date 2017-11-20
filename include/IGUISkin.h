@@ -437,7 +437,8 @@ namespace gui
 		\param clip: Clip area. */
 		virtual void draw3DButtonPaneStandard(IGUIElement* element,
 			const core::rect<s32>& rect,
-			const core::rect<s32>* clip=0) = 0;
+			const core::rect<s32>* clip=0,
+			const video::SColor* colors=0) = 0;
 
 		//! draws a pressed 3d button pane
 		/** Used for drawing for example buttons in pressed state.
@@ -450,7 +451,8 @@ namespace gui
 		\param clip: Clip area. */
 		virtual void draw3DButtonPanePressed(IGUIElement* element,
 			const core::rect<s32>& rect,
-			const core::rect<s32>* clip=0) = 0;
+			const core::rect<s32>* clip=0,
+			const video::SColor* colors=0) = 0;
 
 		//! draws a sunken 3d pane
 		/** Used for drawing the background of edit, combo or check boxes.
@@ -467,7 +469,8 @@ namespace gui
 		virtual void draw3DSunkenPane(IGUIElement* element,
 			video::SColor bgcolor, bool flat, bool fillBackGround,
 			const core::rect<s32>& rect,
-			const core::rect<s32>* clip=0) = 0;
+			const core::rect<s32>* clip=0,
+			const video::SColor* colors=0) = 0;
 
 		//! draws a window background
 		/** Used for drawing the background of dialogs and windows.
@@ -487,7 +490,8 @@ namespace gui
 			bool drawTitleBar, video::SColor titleBarColor,
 			const core::rect<s32>& rect,
 			const core::rect<s32>* clip=0,
-			core::rect<s32>* checkClientArea=0) = 0;
+			core::rect<s32>* checkClientArea=0,
+			const video::SColor* colors=0) = 0;
 
 		//! draws a standard 3d menu pane
 		/** Used for drawing for menus and context menus.
@@ -500,7 +504,8 @@ namespace gui
 		\param clip: Clip area. */
 		virtual void draw3DMenuPane(IGUIElement* element,
 			const core::rect<s32>& rect,
-			const core::rect<s32>* clip=0) = 0;
+			const core::rect<s32>* clip=0,
+			const video::SColor* colors=0) = 0;
 
 		//! draws a standard 3d tool bar
 		/** Used for drawing for toolbars and menus.
@@ -511,7 +516,8 @@ namespace gui
 		\param clip: Clip area. */
 		virtual void draw3DToolBar(IGUIElement* element,
 			const core::rect<s32>& rect,
-			const core::rect<s32>* clip=0) = 0;
+			const core::rect<s32>* clip=0,
+			const video::SColor* colors=0) = 0;
 
 		//! draws a tab button
 		/** Used for drawing for tab buttons on top of tabs.
@@ -523,7 +529,8 @@ namespace gui
 		\param clip: Clip area.
 		\param alignment Alignment of GUI element. */
 		virtual void draw3DTabButton(IGUIElement* element, bool active,
-			const core::rect<s32>& rect, const core::rect<s32>* clip=0, gui::EGUI_ALIGNMENT alignment=EGUIA_UPPERLEFT) = 0;
+			const core::rect<s32>& rect, const core::rect<s32>* clip=0, gui::EGUI_ALIGNMENT alignment=EGUIA_UPPERLEFT,
+			const video::SColor* colors=0) = 0;
 
 		//! draws a tab control body
 		/** \param element: Pointer to the element which wishes to draw this. This parameter
@@ -536,7 +543,8 @@ namespace gui
 		\param tabHeight Height of tab.
 		\param alignment Alignment of GUI element. */
 		virtual void draw3DTabBody(IGUIElement* element, bool border, bool background,
-			const core::rect<s32>& rect, const core::rect<s32>* clip=0, s32 tabHeight=-1, gui::EGUI_ALIGNMENT alignment=EGUIA_UPPERLEFT ) = 0;
+			const core::rect<s32>& rect, const core::rect<s32>* clip=0, s32 tabHeight=-1, gui::EGUI_ALIGNMENT alignment=EGUIA_UPPERLEFT,
+			const video::SColor* colors=0) = 0;
 
 		//! draws an icon, usually from the skin's sprite bank
 		/** \param element: Pointer to the element which wishes to draw this icon.

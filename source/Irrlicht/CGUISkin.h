@@ -85,7 +85,8 @@ namespace gui
 		implementations to find out how to draw the part exactly. */
 		virtual void draw3DButtonPaneStandard(IGUIElement* element,
 				const core::rect<s32>& rect,
-				const core::rect<s32>* clip=0);
+				const core::rect<s32>* clip=0,
+				const video::SColor* colors=0);
 
 		//! draws a pressed 3d button pane
 		/** Used for drawing for example buttons in pressed state.
@@ -98,7 +99,8 @@ namespace gui
 		implementations to find out how to draw the part exactly. */
 		virtual void draw3DButtonPanePressed(IGUIElement* element,
 				const core::rect<s32>& rect,
-				const core::rect<s32>* clip=0);
+				const core::rect<s32>* clip=0,
+				const video::SColor* colors=0);
 
 		//! draws a sunken 3d pane
 		/** Used for drawing the background of edit, combo or check boxes.
@@ -114,7 +116,8 @@ namespace gui
 				video::SColor bgcolor, bool flat,
 				bool fillBackGround,
 				const core::rect<s32>& rect,
-				const core::rect<s32>* clip=0);
+				const core::rect<s32>* clip=0,
+				const video::SColor* colors=0);
 
 		//! draws a window background
 		/** Used for drawing the background of dialogs and windows.
@@ -134,7 +137,8 @@ namespace gui
 				bool drawTitleBar, video::SColor titleBarColor,
 				const core::rect<s32>& rect,
 				const core::rect<s32>* clip,
-				core::rect<s32>* checkClientArea);
+				core::rect<s32>* checkClientArea,
+				const video::SColor* colors=0);
 
 		//! draws a standard 3d menu pane
 		/** Used for drawing for menus and context menus.
@@ -147,7 +151,8 @@ namespace gui
 		\param clip: Clip area.	*/
 		virtual void draw3DMenuPane(IGUIElement* element,
 				const core::rect<s32>& rect,
-				const core::rect<s32>* clip=0);
+				const core::rect<s32>* clip=0,
+				const video::SColor* colors=0);
 
 		//! draws a standard 3d tool bar
 		/** Used for drawing for toolbars and menus.
@@ -158,7 +163,8 @@ namespace gui
 		\param clip: Clip area.	*/
 		virtual void draw3DToolBar(IGUIElement* element,
 				const core::rect<s32>& rect,
-				const core::rect<s32>* clip=0);
+				const core::rect<s32>* clip=0,
+				const video::SColor* colors=0);
 
 		//! draws a tab button
 		/** Used for drawing for tab buttons on top of tabs.
@@ -169,7 +175,8 @@ namespace gui
 		\param rect: Defining area where to draw.
 		\param clip: Clip area.	*/
 		virtual void draw3DTabButton(IGUIElement* element, bool active,
-			const core::rect<s32>& rect, const core::rect<s32>* clip=0, EGUI_ALIGNMENT alignment=EGUIA_UPPERLEFT);
+			const core::rect<s32>& rect, const core::rect<s32>* clip=0, EGUI_ALIGNMENT alignment=EGUIA_UPPERLEFT,
+			const video::SColor* colors=0);
 
 		//! draws a tab control body
 		/** \param element: Pointer to the element which wishes to draw this. This parameter
@@ -180,7 +187,8 @@ namespace gui
 		\param rect: Defining area where to draw.
 		\param clip: Clip area.	*/
 		virtual void draw3DTabBody(IGUIElement* element, bool border, bool background,
-			const core::rect<s32>& rect, const core::rect<s32>* clip=0, s32 tabHeight=-1, EGUI_ALIGNMENT alignment=EGUIA_UPPERLEFT);
+			const core::rect<s32>& rect, const core::rect<s32>* clip=0, s32 tabHeight=-1, EGUI_ALIGNMENT alignment=EGUIA_UPPERLEFT,
+			const video::SColor* colors=0);
 
 		//! draws an icon, usually from the skin's sprite bank
 		/** \param element: Pointer to the element which wishes to draw this icon.
@@ -223,6 +231,22 @@ namespace gui
 		//! Implement this to set the attributes of your scene node animator for
 		//! scripting languages, editors, debuggers or xml deserialization purposes.
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0);
+		
+		
+		//! returns the texture loader
+		virtual video::ITextureLoader* getTextureLoader() const;
+
+		//! sets the texture loader
+		virtual void setTextureLoader(video::ITextureLoader* newTextureLoader);
+		
+		//! gets a texture
+		virtual video::ITexture* getTexture(const std::string& name, 
+			video::ITextureLoader* texture_loader=0) const;
+		
+		//! draws a stretched image
+		virtual void drawStretchedImage(const irr::core::rect<s32>& drawn_rect, 
+			const video::ITexture* drawn_texture, s32 border_width=16, s32 border_height=16);
+
 
 	private:
 
@@ -236,6 +260,8 @@ namespace gui
 		bool UseGradient;
 
 		EGUI_SKIN_TYPE Type;
+		
+		video::ITextureLoader* TextureLoader;
 	};
 
 
@@ -245,5 +271,3 @@ namespace gui
 #endif // _IRR_COMPILE_WITH_GUI_
 
 #endif
-
-

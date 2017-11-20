@@ -107,6 +107,9 @@ namespace gui
 		s32 DesiredPos;
 		u32 LastChange;
 		video::SColor CurrentIconColor;
+		bool HasCustomColors;
+		video::SColor BarColor;
+		video::SColor ButtonColor;
 
 		f32 range () const { return (f32) ( Max - Min ); }
 	};
