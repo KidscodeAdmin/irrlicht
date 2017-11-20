@@ -29,11 +29,17 @@ CGUIScrollBar::CGUIScrollBar(bool horizontal, IGUIEnvironment* environment,
 	DrawHeight(0), Min(0), Max(100), 
 	BaseStep(1), SmallStep(10), LargeStep(50), DesiredPos(0), // :PATCH::
 	LastChange(0), CurrentIconColor(0,0,0,0),
-	HasCustomColors(false), BarColor(101,230,230,230), ButtonColor(101,230,230,230)  // ::PATCH:
+	HasColors(false)  // ::PATCH:
 {
 	#ifdef _DEBUG
 	setDebugName("CGUIScrollBar");
 	#endif
+	
+	
+	IGUISkin* skin = Environment->getSkin();
+	
+	if (skin)
+		skin->getColors(Colors);
 
 	refreshControls();
 
@@ -465,6 +471,21 @@ void CGUIScrollBar::setMin(s32 min)
 s32 CGUIScrollBar::getPos() const
 {
 	return Pos;
+}
+
+
+//! returns a color
+video::SColor CGUIScrollBar::getColor(EGUI_DEFAULT_COLOR color) const
+{
+	return Colors[color];
+}
+
+
+//! sets a color
+void CGUIScrollBar::setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor)
+{
+	HasColors = true;
+	Colors[which] = newColor;
 }
 
 

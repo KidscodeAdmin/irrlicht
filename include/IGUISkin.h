@@ -588,6 +588,9 @@ namespace gui
 		//! draws a stretched image
 		virtual void drawStretchedImage(const irr::core::rect<s32>& drawn_rect, 
 			const video::ITexture* drawn_texture, s32 border_width=16, s32 border_height=16) = 0; // ::PATCH:
+		
+		//! gets the colors
+		virtual void getColors(video::SColor* colors) = 0; // ::PATCH:
 	};
 
 

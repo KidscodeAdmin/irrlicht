@@ -1107,6 +1107,14 @@ void CGUISkin::drawStretchedImage(const irr::core::rect<s32>& drawn_rect,
 			0, 0, true);
 	}
 }
+
+//! gets the colors
+void CGUISkin::getColors(video::SColor* colors) // ::PATCH:
+{
+	u32 i;
+	for (i=0; i<EGDC_COUNT; ++i)
+		colors[i] = Colors[i];
+}
 } // end namespace gui
 } // end namespace irr
 

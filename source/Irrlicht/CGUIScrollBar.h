@@ -72,6 +72,12 @@ namespace gui
 
 		//! sets the position of the scrollbar
 		virtual void setPos(s32 pos);
+		
+		//! returns a color
+		virtual video::SColor getColor(EGUI_DEFAULT_COLOR color) const; // :PATCH:
+
+		//! sets a color
+		virtual void setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor); // :PATCH:
 
 		//! updates the rectangle
 		virtual void updateAbsolutePosition();
@@ -107,9 +113,8 @@ namespace gui
 		s32 DesiredPos;
 		u32 LastChange;
 		video::SColor CurrentIconColor;
-		bool HasCustomColors;
-		video::SColor BarColor;
-		video::SColor ButtonColor;
+		bool HasColors;
+		video::SColor Colors[EGDC_COUNT];
 
 		f32 range () const { return (f32) ( Max - Min ); }
 	};

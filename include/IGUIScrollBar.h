@@ -6,6 +6,7 @@
 #define __I_GUI_SCROLL_BAR_H_INCLUDED__
 
 #include "IGUIElement.h"
+#include "IGUISkin.h" // :PATCH:
 
 namespace irr
 {
@@ -61,6 +62,12 @@ namespace gui
 
 		//! sets the current position of the scrollbar
 		virtual void setPos(s32 pos) = 0;
+		
+		//! returns a color
+		virtual video::SColor getColor(EGUI_DEFAULT_COLOR color) const = 0; // :PATCH:
+
+		//! sets a color
+		virtual void setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor) = 0; // :PATCH:
 	};
 
 
