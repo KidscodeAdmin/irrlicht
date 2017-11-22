@@ -292,7 +292,7 @@ void CGUIScrollBar::draw()
 		return;
 
 
-	video::SColor iconColor = skin->getColor(isEnabled() ? EGDC_WINDOW_SYMBOL : EGDC_GRAY_WINDOW_SYMBOL);
+	video::SColor iconColor = getColor(isEnabled() ? EGDC_WINDOW_SYMBOL : EGDC_GRAY_WINDOW_SYMBOL);
 	if ( iconColor != CurrentIconColor )
 	{
 		refreshControls();
@@ -302,7 +302,7 @@ void CGUIScrollBar::draw()
 	SliderRect = AbsoluteRect;
 
 	// draws the background
-	skin->draw2DRectangle(this, skin->getColor(EGDC_SCROLLBAR), SliderRect, &AbsoluteClippingRect);
+	skin->draw2DRectangle(this, getColor(EGDC_SCROLLBAR), SliderRect, &AbsoluteClippingRect);
 
 	if ( core::isnotzero ( range() ) )
 	{
@@ -477,6 +477,14 @@ s32 CGUIScrollBar::getPos() const
 //! returns a color
 video::SColor CGUIScrollBar::getColor(EGUI_DEFAULT_COLOR color) const
 {
+	if (!HasColors)
+	{
+		IGUISkin* skin = Environment->getSkin();
+		
+		if (skin)
+			return skin->getColor(color);
+	}
+	
 	return Colors[color];
 }
 
@@ -500,7 +508,7 @@ void CGUIScrollBar::refreshControls()
 	if (skin)
 	{
 		sprites = skin->getSpriteBank();
-		CurrentIconColor = skin->getColor(isEnabled() ? EGDC_WINDOW_SYMBOL : EGDC_GRAY_WINDOW_SYMBOL);
+		CurrentIconColor = getColor(isEnabled() ? EGDC_WINDOW_SYMBOL : EGDC_GRAY_WINDOW_SYMBOL);
 	}
 
 	if (Horizontal)
