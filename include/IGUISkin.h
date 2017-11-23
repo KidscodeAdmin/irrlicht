@@ -596,31 +596,37 @@ namespace gui
 
 	// :PATCH::
 	#define set3DSkinColors(skin, button_color) \
-		skin->setColor(EGDC_3D_FACE, button_color); \
-		skin->setColor(EGDC_3D_DARK_SHADOW, button_color, 0.25f); \
-		skin->setColor(EGDC_3D_SHADOW, button_color, 0.5f); \
-		skin->setColor(EGDC_3D_LIGHT, button_color); \
-		skin->setColor(EGDC_3D_HIGH_LIGHT, button_color, 1.5f)
+		{ \
+			skin->setColor(EGDC_3D_FACE, button_color); \
+			skin->setColor(EGDC_3D_DARK_SHADOW, button_color, 0.25f); \
+			skin->setColor(EGDC_3D_SHADOW, button_color, 0.5f); \
+			skin->setColor(EGDC_3D_LIGHT, button_color); \
+			skin->setColor(EGDC_3D_HIGH_LIGHT, button_color, 1.5f); \
+		}
 		
 	#define getElementSkinColor(color) \
-		if (!Colors) \
 		{ \
-			IGUISkin* skin = Environment->getSkin(); \
-			if (skin) \
-				return skin->getColor(color); \
-		} \
-		return Colors[color]
+			if (!Colors) \
+			{ \
+				IGUISkin* skin = Environment->getSkin(); \
+				if (skin) \
+					return skin->getColor(color); \
+			} \
+			return Colors[color]; \
+		}
 
 	#define setElementSkinColor(which, newColor, shading) \
-		if (!Colors) \
 		{ \
-			Colors = new video::SColor[EGDC_COUNT]; \
-			IGUISkin* skin = Environment->getSkin(); \
-			if (skin) \
-				skin->getColors(Colors); \
-		} \
-		Colors[which] = newColor; \
-		Colors[which].setShading(shading)
+			if (!Colors) \
+			{ \
+				Colors = new video::SColor[EGDC_COUNT]; \
+				IGUISkin* skin = Environment->getSkin(); \
+				if (skin) \
+					skin->getColors(Colors); \
+			} \
+			Colors[which] = newColor; \
+			Colors[which].setShading(shading); \
+		}
 	// ::PATCH:
 } // end namespace gui
 } // end namespace irr
