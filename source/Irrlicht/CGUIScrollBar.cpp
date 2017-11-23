@@ -27,19 +27,13 @@ CGUIScrollBar::CGUIScrollBar(bool horizontal, IGUIEnvironment* environment,
 	DownButton(0), Dragging(false), Horizontal(horizontal),
 	DraggedBySlider(false), TrayClick(false), Pos(0), DrawPos(0),
 	DrawHeight(0), Min(0), Max(100), 
-	BaseStep(1), SmallStep(10), LargeStep(50), DesiredPos(0), // :PATCH::
+	BaseStep(1), SmallStep(10), LargeStep(50), DesiredPos(0), // :PATCH:
 	LastChange(0), CurrentIconColor(0,0,0,0),
-	HasColors(false)  // ::PATCH:
+	Colors(0) // :PATCH:
 {
 	#ifdef _DEBUG
 	setDebugName("CGUIScrollBar");
 	#endif
-	
-	
-	IGUISkin* skin = Environment->getSkin();
-	
-	if (skin)
-		skin->getColors(Colors);
 
 	refreshControls();
 
@@ -61,6 +55,9 @@ CGUIScrollBar::~CGUIScrollBar()
 
 	if (DownButton)
 		DownButton->drop();
+		
+	if (Colors)
+		delete[] Colors;
 }
 
 
@@ -477,7 +474,7 @@ s32 CGUIScrollBar::getPos() const
 //! returns a color
 video::SColor CGUIScrollBar::getColor(EGUI_DEFAULT_COLOR color) const
 {
-	if (!HasColors)
+	if (!Colors)
 	{
 		IGUISkin* skin = Environment->getSkin();
 		
@@ -492,7 +489,16 @@ video::SColor CGUIScrollBar::getColor(EGUI_DEFAULT_COLOR color) const
 //! sets a color
 void CGUIScrollBar::setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor)
 {
-	HasColors = true;
+	if (!Colors)
+	{			
+		Colors = new video::SColor[EGDC_COUNT];
+			
+		IGUISkin* skin = Environment->getSkin();
+		
+		if (skin)
+			skin->getColors(Colors);
+	}
+		
 	Colors[which] = newColor;
 }
 

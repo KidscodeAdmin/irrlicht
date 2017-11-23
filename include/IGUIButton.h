@@ -6,6 +6,7 @@
 #define __I_GUI_BUTTON_H_INCLUDED__
 
 #include "IGUIElement.h"
+#include "IGUISkin.h" // :PATCH:
 
 namespace irr
 {
@@ -141,6 +142,12 @@ namespace gui
 
 		//! Checks whether the button scales the used images
 		virtual bool isScalingImage() const = 0;
+		
+		//! returns a color
+		virtual video::SColor getColor(EGUI_DEFAULT_COLOR color) const = 0; // :PATCH:
+
+		//! sets a color
+		virtual void setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor) = 0; // :PATCH:
 	};
 
 

@@ -23,7 +23,8 @@ CGUIButton::CGUIButton(IGUIEnvironment* environment, IGUIElement* parent,
 	SpriteBank(0), OverrideFont(0), Image(0), PressedImage(0),
 	ClickTime(0), HoverTime(0), FocusTime(0), 
 	IsPushButton(false), Pressed(false),
-	UseAlphaChannel(false), DrawBorder(true), ScaleImage(false)
+	UseAlphaChannel(false), DrawBorder(true), ScaleImage(false), 
+	Colors(0) // :PATCH:
 {
 	#ifdef _DEBUG
 	setDebugName("CGUIButton");
@@ -54,6 +55,9 @@ CGUIButton::~CGUIButton()
 
 	if (SpriteBank)
 		SpriteBank->drop();
+		
+	if (Colors)
+		delete[] Colors;
 }
 
 
@@ -469,6 +473,38 @@ bool CGUIButton::isDrawingBorder() const
 {
 	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return DrawBorder;
+}
+
+
+//! returns a color
+video::SColor CGUIButton::getColor(EGUI_DEFAULT_COLOR color) const
+{
+	if (!Colors)
+	{
+		IGUISkin* skin = Environment->getSkin();
+		
+		if (skin)
+			return skin->getColor(color);
+	}
+	
+	return Colors[color];
+}
+
+
+//! sets a color
+void CGUIButton::setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor)
+{
+	if (!Colors)
+	{			
+		Colors = new video::SColor[EGDC_COUNT];
+			
+		IGUISkin* skin = Environment->getSkin();
+		
+		if (skin)
+			skin->getColors(Colors);
+	}
+		
+	Colors[which] = newColor;
 }
 
 

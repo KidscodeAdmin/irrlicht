@@ -98,6 +98,12 @@ namespace gui
 
 		//! Checks whether the button scales the used images
 		virtual bool isScalingImage() const;
+		
+		//! returns a color
+		virtual video::SColor getColor(EGUI_DEFAULT_COLOR color) const; // :PATCH:
+
+		//! sets a color
+		virtual void setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor); // :PATCH:
 
 		//! Writes attributes of the element.
 		virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const;
@@ -132,6 +138,8 @@ namespace gui
 		bool UseAlphaChannel;
 		bool DrawBorder;
 		bool ScaleImage;
+		
+		video::SColor* Colors; // :PATCH:
 	};
 
 } // end namespace gui

@@ -113,8 +113,7 @@ namespace gui
 		s32 DesiredPos;
 		u32 LastChange;
 		video::SColor CurrentIconColor;
-		bool HasColors;
-		video::SColor Colors[EGDC_COUNT];
+		video::SColor* Colors; // :PATCH:
 
 		f32 range () const { return (f32) ( Max - Min ); }
 	};
