@@ -315,7 +315,7 @@ void CGUIScrollBar::draw()
 			SliderRect.LowerRightCorner.Y = SliderRect.UpperLeftCorner.Y + DrawHeight;
 		}
 
-		skin->draw3DButtonPaneStandard(this, SliderRect, &AbsoluteClippingRect);
+		skin->draw3DButtonPaneStandard(this, SliderRect, &AbsoluteClippingRect, Colors);
 	}
 
 	// draw buttons
@@ -487,7 +487,7 @@ video::SColor CGUIScrollBar::getColor(EGUI_DEFAULT_COLOR color) const
 
 
 //! sets a color
-void CGUIScrollBar::setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor)
+void CGUIScrollBar::setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor, f32 shading)
 {
 	if (!Colors)
 	{			
@@ -500,6 +500,7 @@ void CGUIScrollBar::setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor)
 	}
 		
 	Colors[which] = newColor;
+	Colors[which].setShading(shading);
 }
 
 
@@ -525,6 +526,15 @@ void CGUIScrollBar::refreshControls()
 			UpButton = new CGUIButton(Environment, this, -1, core::rect<s32>(0,0, h, h), NoClip);
 			UpButton->setSubElement(true);
 			UpButton->setTabStop(false);
+			
+			if (Colors) // :PATCH:
+			{
+				video::SColor button_color = Colors[EGDC_3D_FACE];
+				UpButton->setColor(EGDC_3D_FACE, button_color);
+				UpButton->setColor(EGDC_3D_DARK_SHADOW, button_color, 0.25f);
+				UpButton->setColor(EGDC_3D_SHADOW, button_color, 0.5f);
+				UpButton->setColor(EGDC_3D_HIGH_LIGHT, button_color, 1.5f);
+			}
 		}
 		if (sprites)
 		{
@@ -534,11 +544,21 @@ void CGUIScrollBar::refreshControls()
 		}
 		UpButton->setRelativePosition(core::rect<s32>(0,0, h, h));
 		UpButton->setAlignment(EGUIA_UPPERLEFT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
+		
 		if (!DownButton)
 		{
 			DownButton = new CGUIButton(Environment, this, -1, core::rect<s32>(RelativeRect.getWidth()-h, 0, RelativeRect.getWidth(), h), NoClip);
 			DownButton->setSubElement(true);
 			DownButton->setTabStop(false);
+			
+			if (Colors) // :PATCH:
+			{
+				video::SColor button_color = Colors[EGDC_3D_FACE];
+				DownButton->setColor(EGDC_3D_FACE, button_color);
+				DownButton->setColor(EGDC_3D_DARK_SHADOW, button_color, 0.25f);
+				DownButton->setColor(EGDC_3D_SHADOW, button_color, 0.5f);
+				DownButton->setColor(EGDC_3D_HIGH_LIGHT, button_color, 1.5f);
+			}
 		}
 		if (sprites)
 		{

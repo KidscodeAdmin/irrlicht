@@ -272,6 +272,25 @@ namespace video
 		/** \param b: Has to be a value between 0 and 255.
 		0 means no blue, 255 means full blue. */
 		void setBlue(u32 b) { color = (b & 0xff) | (color & 0xffffff00); }
+		
+		//! Sets the shading
+		void setShading(f32 s) // :PATCH:
+		{
+			if (s < 1.0f)
+			{
+				setRed(getRed() * s);
+				setGreen(getGreen() * s);
+				setBlue(getBlue() * s);
+			}
+			else if (s > 1.0f)
+			{
+				s -= 1.0f;
+				
+				setRed(getRed() + (255 - getRed()) * s);
+				setGreen(getGreen() + (255 - getGreen()) * s);
+				setBlue(getBlue() + (255 - getBlue()) * s);
+			}
+		}
 
 		//! Calculates a 16 bit A1R5G5B5 value of this color.
 		/** \return 16 bit A1R5G5B5 value of this color. */

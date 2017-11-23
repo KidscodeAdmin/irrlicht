@@ -147,7 +147,8 @@ namespace gui
 		virtual video::SColor getColor(EGUI_DEFAULT_COLOR color) const = 0; // :PATCH:
 
 		//! sets a color
-		virtual void setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor) = 0; // :PATCH:
+		virtual void setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor,
+				f32 shading=1.0f) = 0; // :PATCH:
 	};
 
 

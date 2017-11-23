@@ -245,7 +245,7 @@ void CGUIButton::draw()
 	if (!Pressed)
 	{
 		if (DrawBorder)
-			skin->draw3DButtonPaneStandard(this, AbsoluteRect, &AbsoluteClippingRect);
+			skin->draw3DButtonPaneStandard(this, AbsoluteRect, &AbsoluteClippingRect, Colors);
 
 		if (Image)
 		{
@@ -263,7 +263,7 @@ void CGUIButton::draw()
 	else
 	{
 		if (DrawBorder)
-			skin->draw3DButtonPanePressed(this, AbsoluteRect, &AbsoluteClippingRect);
+			skin->draw3DButtonPanePressed(this, AbsoluteRect, &AbsoluteClippingRect, Colors);
 
 		if (PressedImage)
 		{
@@ -330,7 +330,7 @@ void CGUIButton::draw()
 
 		if (font)
 			font->draw(Text.c_str(), rect,
-				skin->getColor(isEnabled() ? EGDC_BUTTON_TEXT : EGDC_GRAY_TEXT),
+				getColor(isEnabled() ? EGDC_BUTTON_TEXT : EGDC_GRAY_TEXT),
 				true, true, &AbsoluteClippingRect);
 	}
 
@@ -492,7 +492,7 @@ video::SColor CGUIButton::getColor(EGUI_DEFAULT_COLOR color) const
 
 
 //! sets a color
-void CGUIButton::setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor)
+void CGUIButton::setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor, f32 shading)
 {
 	if (!Colors)
 	{			
@@ -505,6 +505,7 @@ void CGUIButton::setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor)
 	}
 		
 	Colors[which] = newColor;
+	Colors[which].setShading(shading);
 }
 
 
