@@ -479,33 +479,14 @@ bool CGUIButton::isDrawingBorder() const
 //! returns a color
 video::SColor CGUIButton::getColor(EGUI_DEFAULT_COLOR color) const
 {
-	if (!Colors)
-	{
-		IGUISkin* skin = Environment->getSkin();
-		
-		if (skin)
-			return skin->getColor(color);
-	}
-	
-	return Colors[color];
+	getElementSkinColor(color);
 }
 
 
 //! sets a color
 void CGUIButton::setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor, f32 shading)
 {
-	if (!Colors)
-	{			
-		Colors = new video::SColor[EGDC_COUNT];
-			
-		IGUISkin* skin = Environment->getSkin();
-		
-		if (skin)
-			skin->getColors(Colors);
-	}
-		
-	Colors[which] = newColor;
-	Colors[which].setShading(shading);
+	setElementSkinColor(which, newColor, shading);
 }
 
 

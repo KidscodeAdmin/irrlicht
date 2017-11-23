@@ -6,6 +6,7 @@
 #define __I_GUI_COMBO_BOX_H_INCLUDED__
 
 #include "IGUIElement.h"
+#include "IGUISkin.h" // :PATCH:
 
 namespace irr
 {
@@ -64,6 +65,13 @@ namespace gui
 
 		//! Get the maximimal number of rows for the selection listbox
 		virtual u32 getMaxSelectionRows() const = 0;
+		
+		//! returns a color
+		virtual video::SColor getColor(EGUI_DEFAULT_COLOR color) const = 0; // :PATCH:
+
+		//! sets a color
+		virtual void setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor,
+			 f32 shading=1.0f) = 0; // :PATCH:
 	};
 
 

@@ -67,6 +67,13 @@ namespace gui
 
 		//! Get the maximimal number of rows for the selection listbox
 		virtual u32 getMaxSelectionRows() const;
+		
+		//! returns a color
+		virtual video::SColor getColor(EGUI_DEFAULT_COLOR color) const; // :PATCH:
+
+		//! sets a color
+		virtual void setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor,
+			 f32 shading=1.0f); // :PATCH:
 
 		//! called if an event happened.
 		virtual bool OnEvent(const SEvent& event);
@@ -105,6 +112,8 @@ namespace gui
 		EGUI_ALIGNMENT HAlign, VAlign;
 		u32 MaxSelectionRows;
 		bool HasFocus;
+	
+		video::SColor* Colors; // :PATCH:
 	};
 
 

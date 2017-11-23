@@ -24,7 +24,8 @@ CGUIComboBox::CGUIComboBox(IGUIEnvironment* environment, IGUIElement* parent,
 	s32 id, core::rect<s32> rectangle)
 	: IGUIComboBox(environment, parent, id, rectangle),
 	ListButton(0), SelectedText(0), ListBox(0), LastFocus(0),
-	Selected(-1), HAlign(EGUIA_UPPERLEFT), VAlign(EGUIA_CENTER), MaxSelectionRows(5), HasFocus(false)
+	Selected(-1), HAlign(EGUIA_UPPERLEFT), VAlign(EGUIA_CENTER), MaxSelectionRows(5), HasFocus(false),
+	Colors(0) // :PATCH:
 {
 	#ifdef _DEBUG
 	setDebugName("CGUIComboBox");
@@ -98,6 +99,20 @@ void CGUIComboBox::setMaxSelectionRows(u32 max)
 u32 CGUIComboBox::getMaxSelectionRows() const
 {
 	return MaxSelectionRows;
+}
+
+
+//! returns a color
+video::SColor CGUIComboBox::getColor(EGUI_DEFAULT_COLOR color) const
+{
+	getElementSkinColor(color);
+}
+
+
+//! sets a color
+void CGUIComboBox::setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor, f32 shading)
+{
+	setElementSkinColor(which, newColor, shading);
 }
 
 

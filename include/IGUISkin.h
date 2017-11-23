@@ -577,24 +577,51 @@ namespace gui
 		virtual EGUI_SKIN_TYPE getType() const { return EGST_UNKNOWN; }
 		
 		//! returns the texture loader
-		virtual video::ITextureLoader* getTextureLoader() const = 0; // :PATCH::
+		virtual video::ITextureLoader* getTextureLoader() const = 0; // :PATCH:
 
 		//! sets the texture loader
-		virtual void setTextureLoader(video::ITextureLoader* newTextureLoader) = 0;
+		virtual void setTextureLoader(video::ITextureLoader* newTextureLoader) = 0; // :PATCH:
 		
 		//! gets a texture
 		virtual video::ITexture* getTexture(const std::string& name, 
-			video::ITextureLoader* texture_loader=0) const = 0;
+			video::ITextureLoader* texture_loader=0) const = 0; // :PATCH:
 		
 		//! draws a stretched image
 		virtual void drawStretchedImage(const irr::core::rect<s32>& drawn_rect, 
-			const video::ITexture* drawn_texture, s32 border_width=16, s32 border_height=16) = 0; // ::PATCH:
+			const video::ITexture* drawn_texture, s32 border_width=16, s32 border_height=16) = 0; // :PATCH:
 		
 		//! gets the colors
-		virtual void getColors(video::SColor* colors) = 0; // ::PATCH:
+		virtual void getColors(video::SColor* colors) = 0; // :PATCH:
 	};
 
+	// :PATCH::
+	#define set3DSkinColors(skin, button_color) \
+		skin->setColor(EGDC_3D_FACE, button_color); \
+		skin->setColor(EGDC_3D_DARK_SHADOW, button_color, 0.25f); \
+		skin->setColor(EGDC_3D_SHADOW, button_color, 0.5f); \
+		skin->setColor(EGDC_3D_LIGHT, button_color); \
+		skin->setColor(EGDC_3D_HIGH_LIGHT, button_color, 1.5f)
+		
+	#define getElementSkinColor(color) \
+		if (!Colors) \
+		{ \
+			IGUISkin* skin = Environment->getSkin(); \
+			if (skin) \
+				return skin->getColor(color); \
+		} \
+		return Colors[color]
 
+	#define setElementSkinColor(which, newColor, shading) \
+		if (!Colors) \
+		{ \
+			Colors = new video::SColor[EGDC_COUNT]; \
+			IGUISkin* skin = Environment->getSkin(); \
+			if (skin) \
+				skin->getColors(Colors); \
+		} \
+		Colors[which] = newColor; \
+		Colors[which].setShading(shading)
+	// ::PATCH:
 } // end namespace gui
 } // end namespace irr
 

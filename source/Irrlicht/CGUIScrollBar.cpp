@@ -474,33 +474,14 @@ s32 CGUIScrollBar::getPos() const
 //! returns a color
 video::SColor CGUIScrollBar::getColor(EGUI_DEFAULT_COLOR color) const
 {
-	if (!Colors)
-	{
-		IGUISkin* skin = Environment->getSkin();
-		
-		if (skin)
-			return skin->getColor(color);
-	}
-	
-	return Colors[color];
+	getElementSkinColor(color);
 }
 
 
 //! sets a color
 void CGUIScrollBar::setColor(EGUI_DEFAULT_COLOR which, video::SColor newColor, f32 shading)
 {
-	if (!Colors)
-	{			
-		Colors = new video::SColor[EGDC_COUNT];
-			
-		IGUISkin* skin = Environment->getSkin();
-		
-		if (skin)
-			skin->getColors(Colors);
-	}
-		
-	Colors[which] = newColor;
-	Colors[which].setShading(shading);
+	setElementSkinColor(which, newColor, shading);
 }
 
 
@@ -588,21 +569,13 @@ void CGUIScrollBar::refreshControls()
 		if (UpButton)
 		{
 			video::SColor button_color = getColor(EGDC_3D_FACE);
-			UpButton->setColor(EGDC_3D_FACE, button_color);
-			UpButton->setColor(EGDC_3D_DARK_SHADOW, button_color, 0.25f);
-			UpButton->setColor(EGDC_3D_SHADOW, button_color, 0.5f);
-			UpButton->setColor(EGDC_3D_LIGHT, button_color);
-			UpButton->setColor(EGDC_3D_HIGH_LIGHT, button_color, 1.5f);
+			set3DSkinColors(UpButton, button_color);
 		}
 		
 		if (DownButton)
 		{
 			video::SColor button_color = getColor(EGDC_3D_FACE);
-			DownButton->setColor(EGDC_3D_FACE, button_color);
-			DownButton->setColor(EGDC_3D_DARK_SHADOW, button_color, 0.25f);
-			DownButton->setColor(EGDC_3D_SHADOW, button_color, 0.5f);
-			DownButton->setColor(EGDC_3D_LIGHT, button_color);
-			DownButton->setColor(EGDC_3D_HIGH_LIGHT, button_color, 1.5f);
+			set3DSkinColors(DownButton, button_color);
 		}
 	}
 }
