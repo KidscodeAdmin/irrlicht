@@ -29,6 +29,9 @@ namespace gui
 		CGUIComboBox(IGUIEnvironment* environment, IGUIElement* parent,
 			s32 id, core::rect<s32> rectangle);
 
+		//! destructor
+		virtual ~CGUIComboBox();
+
 		//! Returns amount of items in box
 		virtual u32 getItemCount() const;
 

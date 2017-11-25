@@ -74,6 +74,15 @@ CGUIComboBox::CGUIComboBox(IGUIEnvironment* environment, IGUIElement* parent,
 }
 
 
+//! destructor
+CGUIComboBox::~CGUIComboBox()
+{
+	if (Colors)
+		delete[] Colors;
+}
+
+
+//! Set the text alignment of the text part
 void CGUIComboBox::setTextAlignment(EGUI_ALIGNMENT horizontal, EGUI_ALIGNMENT vertical)
 {
 	HAlign = horizontal;
