@@ -612,6 +612,19 @@ void CGUIImageTabControl::calcTabs()
 	if ( !font )
 		return;
 		
+	CGUIImageTab* tab;
+	
+	for (u32 i=0; i<Tabs.size(); ++i)
+	{
+		tab = Tabs[i];
+		
+		if ( tab )
+		{
+			tab->Active = false;
+			tab->Drawn = false;
+		}
+	}
+	
 	for (u32 side=0; side < 4; ++side)
 	{
 		if ( SideFirstScrollTabIndex[side] >= (s32)SideTabs[side].size() )
@@ -629,19 +642,6 @@ void CGUIImageTabControl::calcTabs()
 		else
 		{
 			pos = AbsoluteRect.UpperLeftCorner.Y + TabHeight + BorderHeight;
-		}
-		
-		CGUIImageTab* tab;
-		
-		for (u32 i=0; i<Tabs.size(); ++i)
-		{
-			tab = Tabs[i];
-			
-			if ( tab )
-			{
-				tab->Active = false;
-				tab->Drawn = false;
-			}
 		}
 		
 		core::rect<s32> tabRect;
@@ -815,11 +815,6 @@ core::rect<s32> CGUIImageTabControl::calcRelativeRect()
 	r.UpperLeftCorner.Y = 0;
 	r.LowerRightCorner.X = AbsoluteRect.getWidth();	
 	r.LowerRightCorner.Y = AbsoluteRect.getHeight();
-	
-	r.UpperLeftCorner.Y += TabHeight;
-	r.LowerRightCorner.Y -= TabHeight;
-	r.UpperLeftCorner.X += TabWidth;
-	r.LowerRightCorner.X -= TabWidth;
 
 	return r;
 }
@@ -881,10 +876,10 @@ void CGUIImageTabControl::draw()
 	calcTabs();
 	calcScrollButtons();
 	
+	CGUIImageTab* activeTab = 0;
+		
 	for (u32 side=0; side < 4; ++side)
 	{
-		CGUIImageTab* activeTab = 0;
-			
 		for (s32 i=SideFirstScrollTabIndex[side]; i<=SideLastScrollTabIndex[side]; ++i)
 		{
 			CGUIImageTab* tab = SideTabs[side][i];
@@ -898,18 +893,18 @@ void CGUIImageTabControl::draw()
 			}
 		}
 
-		Skin->drawStretchedImage(ContentRect, ContentTexture);
-		
-		if (activeTab)
-			drawTab(activeTab, font);
-
 		if ( SidePriorArrow[side] )
 			SidePriorArrow[side]->setEnabled(SideScrollControl[side]);
 		
 		if ( SideNextArrow[side] )
 			SideNextArrow[side]->setEnabled(SideScrollControl[side]);
 	}
+			
+	Skin->drawStretchedImage(ContentRect, ContentTexture);
 	
+	if (activeTab)
+		drawTab(activeTab, font);
+		
 	refreshSprites();
 
 	IGUIElement::draw();
@@ -998,7 +993,7 @@ s32 CGUIImageTabControl::getTabAt(s32 xpos, s32 ypos) const
 				if ( tab->Drawn
 					 && tab->DrawnRect.isPointInside(p))
 				{
-					return i;
+					return tab->getNumber();
 				}
 			}
 		}
