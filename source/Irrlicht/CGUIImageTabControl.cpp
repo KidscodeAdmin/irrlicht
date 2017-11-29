@@ -7,7 +7,7 @@ namespace gui
 //! constructor
 CGUIImageTab::CGUIImageTab(s32 number, IGUIEnvironment* environment,
 	IGUIElement* parent, const core::rect<s32>& rectangle,
-	s32 id, video::ITexture *texture, f32 scaling, s32 side)
+	s32 id, video::ITexture *texture, f32 scaling, u32 side)
 	: IGUITab(environment, parent, id, rectangle), Number(number),
 		BackColor(0,0,0,0), OverrideTextColorEnabled(false), TextColor(255,0,0,0),
 		DrawBackground(false), 
@@ -177,28 +177,26 @@ void CGUIImageTab::drawImage(
 
 //! constructor
 CGUIImageTabControl::CGUIImageTabControl(IGUIEnvironment* environment,
-	IGUIElement* parent, const core::rect<s32>& rectangle,
-	bool show_background, bool show_border, s32 side, s32 id, 
+	IGUIElement* parent, const core::rect<s32>& rectangle, s32 id, 
 	s32 tab_height, s32 tab_width, s32 tab_padding, s32 tab_spacing, 
 	s32 width, s32 height, s32 border_width, s32 border_height, s32 border_offset,
 	s32 button_width, s32 button_height, s32 button_spacing, s32 button_offset, s32 button_distance, 
-	video::ITexture* content_texture, video::ITexture* tab_texture, video::ITexture* active_tab_texture, 
-	video::ITexture* prior_arrow_texture, video::ITexture* prior_arrow_pressed_texture, 
-	video::ITexture* next_arrow_texture, video::ITexture* next_arrow_pressed_texture)
+	video::ITexture* content_texture, 
+	video::ITexture* top_tab_texture, video::ITexture* top_active_tab_texture,  
+	video::ITexture* bottom_tab_texture, video::ITexture* bottom_active_tab_texture,  
+	video::ITexture* left_tab_texture, video::ITexture* left_active_tab_texture,  
+	video::ITexture* right_tab_texture, video::ITexture* right_active_tab_texture,  
+	video::ITexture* up_arrow_texture, video::ITexture* up_arrow_pressed_texture,
+	video::ITexture* down_arrow_texture, video::ITexture* down_arrow_pressed_texture,
+	video::ITexture* left_arrow_texture, video::ITexture* left_arrow_pressed_texture,
+	video::ITexture* right_arrow_texture, video::ITexture* right_arrow_pressed_texture)
 	: IGUITabControl(environment, parent, id, rectangle),  
-	Tabs(), ShowBackground(show_background), ShowBorder(show_border), Side(side),
 	TabHeight(tab_height), TabWidth(tab_width), 
 	TabPadding(tab_padding), TabSpacing(tab_spacing),
 	Width(width), Height(height), BorderWidth(border_width), BorderHeight(border_height), BorderOffset(border_offset),
 	ButtonWidth(button_width), ButtonHeight(button_height), 
 	ButtonSpacing(button_spacing), ButtonOffset(button_offset), ButtonDistance(button_distance), 
-	VerticalAlignment(EGUIA_UPPERLEFT), 
-	ScrollControl(false), PriorArrow(0), NextArrow(0), ActiveTabIndex(-1), 
-	FirstScrollTabIndex(0), LastScrollTabIndex(-1),	Skin(0), 
-	ContentTexture(content_texture), TabTexture(tab_texture), ActiveTabTexture(active_tab_texture), 
-	PriorArrowTexture(prior_arrow_texture), PriorArrowPressedTexture(prior_arrow_pressed_texture), 
-	NextArrowTexture(next_arrow_texture), NextArrowPressedTexture(next_arrow_pressed_texture),
-	ContentRect(0, 0, 0, 0)
+	VerticalAlignment(EGUIA_UPPERLEFT),	ActiveTabIndex(-1), Skin(0), ContentTexture(content_texture), ContentRect(0, 0, 0, 0)
 {
 	#ifdef _DEBUG
 	setDebugName("CGUIImageTabControl");
@@ -206,38 +204,78 @@ CGUIImageTabControl::CGUIImageTabControl(IGUIEnvironment* environment,
 	
 	Skin = environment->getSkin();
 	
-	PriorArrow = Environment->addButton(core::rect<s32>(0,0,10,10), this);
-
-	if ( PriorArrow )
+	for (s32 side=0; side < 4; ++side) 
 	{
-        PriorArrow->setImage(PriorArrowTexture);
-        PriorArrow->setPressedImage(PriorArrowPressedTexture);
-        PriorArrow->setDrawBorder(false);
-        PriorArrow->setScaleImage(true);
-		PriorArrow->setUseAlphaChannel(true);
-		PriorArrow->setVisible(false);
-		PriorArrow->setSubElement(true);
-		PriorArrow->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
-		PriorArrow->setOverrideFont(Environment->getBuiltInFont());
-		PriorArrow->grab();
+		SideScrollControl[side] = false;
+		SidePriorArrow[side] = 0;
+		SideNextArrow[side] = 0;
+		SideFirstScrollTabIndex[side] = 0;
+		SideLastScrollTabIndex[side] = -1;
 	}
 
-	NextArrow = Environment->addButton(core::rect<s32>(0,0,10,10), this);
+	SideTabTexture[0] = top_tab_texture;
+	SideActiveTabTexture[0] = top_active_tab_texture;
+	SidePriorArrowTexture[0] = left_arrow_texture;
+	SidePriorArrowPressedTexture[0] = left_arrow_pressed_texture;
+	SideNextArrowTexture[0] = right_arrow_texture;
+	SideNextArrowPressedTexture[0] = right_arrow_pressed_texture;
 
-	if ( NextArrow )
+	SideTabTexture[1] = bottom_tab_texture;
+	SideActiveTabTexture[1] = bottom_active_tab_texture;
+	SidePriorArrowTexture[1] = left_arrow_texture;
+	SidePriorArrowPressedTexture[1] = left_arrow_pressed_texture;
+	SideNextArrowTexture[1] = right_arrow_texture;
+	SideNextArrowPressedTexture[1] = right_arrow_pressed_texture;
+
+	SideTabTexture[2] = left_tab_texture;
+	SideActiveTabTexture[2] = left_active_tab_texture;
+	SidePriorArrowTexture[2] = up_arrow_texture;
+	SidePriorArrowPressedTexture[2] = up_arrow_pressed_texture;
+	SideNextArrowTexture[2] = down_arrow_texture;
+	SideNextArrowPressedTexture[2] = down_arrow_pressed_texture;
+
+	SideTabTexture[3] = right_tab_texture;
+	SideActiveTabTexture[3] = right_active_tab_texture;
+	SidePriorArrowTexture[3] = up_arrow_texture;
+	SidePriorArrowPressedTexture[3] = up_arrow_pressed_texture;
+	SideNextArrowTexture[3] = down_arrow_texture;
+	SideNextArrowPressedTexture[3] = down_arrow_pressed_texture;
+
+	for (s32 side=0; side < 4; ++side) 
 	{
-        NextArrow->setImage(NextArrowTexture);
-        NextArrow->setPressedImage(NextArrowPressedTexture);
-        NextArrow->setDrawBorder(false);
-        NextArrow->setScaleImage(true);
-		NextArrow->setUseAlphaChannel(true);
-		NextArrow->setVisible(false);
-		NextArrow->setSubElement(true);
-		NextArrow->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
-		NextArrow->setOverrideFont(Environment->getBuiltInFont());
-		NextArrow->grab();
-	}
+		SidePriorArrow[side] = Environment->addButton(core::rect<s32>(0,0,10,10), this);
 
+		if ( SidePriorArrow[side] )
+		{
+			SidePriorArrow[side]->setImage(SidePriorArrowTexture[side]);
+			SidePriorArrow[side]->setPressedImage(SidePriorArrowPressedTexture[side]);
+			SidePriorArrow[side]->setDrawBorder(false);
+			SidePriorArrow[side]->setScaleImage(true);
+			SidePriorArrow[side]->setUseAlphaChannel(true);
+			SidePriorArrow[side]->setVisible(false);
+			SidePriorArrow[side]->setSubElement(true);
+			SidePriorArrow[side]->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
+			SidePriorArrow[side]->setOverrideFont(Environment->getBuiltInFont());
+			SidePriorArrow[side]->grab();
+		}
+
+		SideNextArrow[side] = Environment->addButton(core::rect<s32>(0,0,10,10), this);
+
+		if ( SideNextArrow[side] )
+		{
+			SideNextArrow[side]->setImage(SideNextArrowTexture[side]);
+			SideNextArrow[side]->setPressedImage(SideNextArrowPressedTexture[side]);
+			SideNextArrow[side]->setDrawBorder(false);
+			SideNextArrow[side]->setScaleImage(true);
+			SideNextArrow[side]->setUseAlphaChannel(true);
+			SideNextArrow[side]->setVisible(false);
+			SideNextArrow[side]->setSubElement(true);
+			SideNextArrow[side]->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_UPPERLEFT);
+			SideNextArrow[side]->setOverrideFont(Environment->getBuiltInFont());
+			SideNextArrow[side]->grab();
+		}
+	}
+	
 	setTabVerticalAlignment(EGUIA_UPPERLEFT);
 	refreshSprites();
 }
@@ -251,11 +289,14 @@ CGUIImageTabControl::~CGUIImageTabControl()
 			Tabs[i]->drop();
 	}
 
-	if (PriorArrow)
-		PriorArrow->drop();
+	for (u32 side=0; side < 4; ++side)
+	{
+		if (SidePriorArrow[side])
+			SidePriorArrow[side]->drop();
 
-	if (NextArrow)
-		NextArrow->drop();
+		if (SideNextArrow[side])
+			SideNextArrow[side]->drop();
+	}
 }
 
 void CGUIImageTabControl::refreshSprites()
@@ -268,16 +309,19 @@ void CGUIImageTabControl::refreshSprites()
 		color = skin->getColor(isEnabled() ? EGDC_WINDOW_SYMBOL : EGDC_GRAY_WINDOW_SYMBOL);
 	}
 
-	if (PriorArrow)
+	for (u32 side=0; side < 4; ++side)
 	{
-		PriorArrow->setSprite(EGBS_BUTTON_UP, skin->getIcon(EGDI_CURSOR_LEFT), color);
-		PriorArrow->setSprite(EGBS_BUTTON_DOWN, skin->getIcon(EGDI_CURSOR_LEFT), color);
-	}
+		if (SidePriorArrow[side])
+		{
+			SidePriorArrow[side]->setSprite(EGBS_BUTTON_UP, skin->getIcon(EGDI_CURSOR_LEFT), color);
+			SidePriorArrow[side]->setSprite(EGBS_BUTTON_DOWN, skin->getIcon(EGDI_CURSOR_LEFT), color);
+		}
 
-	if (NextArrow)
-	{
-		NextArrow->setSprite(EGBS_BUTTON_UP, skin->getIcon(EGDI_CURSOR_RIGHT), color);
-		NextArrow->setSprite(EGBS_BUTTON_DOWN, skin->getIcon(EGDI_CURSOR_RIGHT), color);
+		if (SideNextArrow[side])
+		{
+			SideNextArrow[side]->setSprite(EGBS_BUTTON_UP, skin->getIcon(EGDI_CURSOR_RIGHT), color);
+			SideNextArrow[side]->setSprite(EGBS_BUTTON_DOWN, skin->getIcon(EGDI_CURSOR_RIGHT), color);
+		}
 	}
 }
 
@@ -289,10 +333,10 @@ IGUITab* CGUIImageTabControl::addTab(const wchar_t* caption, s32 id)
 
 //! Adds an image tab
 CGUIImageTab* CGUIImageTabControl::addImageTab(const wchar_t* caption, s32 id, 
-	video::ITexture *texture, f32 scaling)
+	video::ITexture *texture, f32 scaling, u32 side)
 {
 	CGUIImageTab* tab = new CGUIImageTab(Tabs.size(), Environment, this, calcRelativeRect(), id, 
-		texture, scaling);
+		texture, scaling, side);
 
 	if (!texture)
 	{
@@ -301,7 +345,9 @@ CGUIImageTab* CGUIImageTabControl::addImageTab(const wchar_t* caption, s32 id,
 	
 	tab->setAlignment(EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
 	tab->setVisible(false);
+	
 	Tabs.push_back(tab);
+	SideTabs[side].push_back(tab);
 
 	if (ActiveTabIndex == -1)
 	{
@@ -339,11 +385,13 @@ void CGUIImageTabControl::addTab(CGUIImageTab* tab)
 		Tabs.push_back(Tabs[tab->getNumber()]);
 		Tabs[Tabs.size()-1]->setNumber(Tabs.size());
 	}
+	
 	Tabs[tab->getNumber()] = tab;
+	
+	SideTabs[tab->Side].push_back(tab);
 
 	if (ActiveTabIndex == -1)
 		ActiveTabIndex = tab->getNumber();
-
 
 	if (tab->getNumber() == ActiveTabIndex)
 	{
@@ -354,7 +402,7 @@ void CGUIImageTabControl::addTab(CGUIImageTab* tab)
 //! Insert the tab at the given index
 IGUITab* CGUIImageTabControl::insertTab(s32 idx, const wchar_t* caption, s32 id)
 {
-	if ( idx < 0 || idx > (s32)Tabs.size() )	// idx == Tabs.size() is indeed ok here as core::array can handle that
+	if ( idx < 0 || idx > (s32)Tabs.size() )
 		return NULL;
 
 	CGUIImageTab* tab = new CGUIImageTab(idx, Environment, this, calcRelativeRect(), id);
@@ -363,6 +411,8 @@ IGUITab* CGUIImageTabControl::insertTab(s32 idx, const wchar_t* caption, s32 id)
 	tab->setAlignment(EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
 	tab->setVisible(false);
 	Tabs.insert(tab, (u32)idx);
+	
+	SideTabs[tab->Side].push_back(tab);
 
 	if (ActiveTabIndex == -1)
 	{
@@ -383,9 +433,21 @@ void CGUIImageTabControl::removeTab(s32 idx)
 {
 	if ( idx < 0 || idx >= (s32)Tabs.size() )
 		return;
+		
+	CGUIImageTab* tab = Tabs[(u32)idx];
+	
+	for (u32 i=0; i < SideTabs[tab->Side].size(); ++i)
+	{
+		if (SideTabs[tab->Side][i] == tab) 
+		{
+			SideTabs[tab->Side].erase(i);
+			break;
+		}
+	}
 
-	Tabs[(u32)idx]->drop();
+	tab->drop();
 	Tabs.erase((u32)idx);
+	
 	for ( u32 i=(u32)idx; i < Tabs.size(); ++i )
 	{
 		Tabs[i]->setNumber(i);
@@ -401,6 +463,9 @@ void CGUIImageTabControl::clear()
 			Tabs[i]->drop();
 	}
 	Tabs.clear();
+	
+	for (u32 side=0; side < 4; ++side)
+		SideTabs[side].clear();
 }
 
 //! Returns amount of tabs in the tabcontrol
@@ -432,18 +497,22 @@ bool CGUIImageTabControl::OnEvent(const SEvent& event)
 			switch(event.GUIEvent.EventType)
 			{
 			case EGET_BUTTON_CLICKED:
-				if (event.GUIEvent.Caller == PriorArrow)
+			{
+				for (u32 side=0; side < 4; ++side)
 				{
-					scrollLeft();
-					return true;
+					if (event.GUIEvent.Caller == SidePriorArrow[side])
+					{
+						scrollLeft(side);
+						return true;
+					}
+					else if (event.GUIEvent.Caller == SideNextArrow[side])
+					{
+						scrollRight(side);
+						return true;
+					}
 				}
-				else if (event.GUIEvent.Caller == NextArrow)
-				{
-					scrollRight();
-					return true;
-				}
-
-			break;
+				break;
+			}
 			default:
 			break;
 			}
@@ -477,22 +546,22 @@ bool CGUIImageTabControl::OnEvent(const SEvent& event)
 }
 
 
-void CGUIImageTabControl::scrollLeft()
+void CGUIImageTabControl::scrollLeft(u32 side)
 {
-	if ( ScrollControl
-	     && FirstScrollTabIndex > 0 )
+	if ( SideScrollControl[side]
+	     && SideFirstScrollTabIndex[side] > 0 )
 	{
-		--FirstScrollTabIndex;
+		--SideFirstScrollTabIndex[side];
 	}
 }
 
 
-void CGUIImageTabControl::scrollRight()
+void CGUIImageTabControl::scrollRight(u32 side)
 {
-	if ( ScrollControl
-		 && FirstScrollTabIndex < (s32)(Tabs.size()) - 1 )
+	if ( SideScrollControl[side]
+		 && SideFirstScrollTabIndex[side] < (s32)(SideTabs[side].size()) - 1 )
 	{
-		++FirstScrollTabIndex;
+		++SideFirstScrollTabIndex[side];
 	}
 }
 
@@ -503,7 +572,7 @@ s32 CGUIImageTabControl::calcTabWidth(s32 pos, IGUIFont* font, const wchar_t* te
 	if ( !font )
 		return 0;
 
-	if ( Side >= 2 )
+	if ( tab->Side >= 2 )
 		return TabWidth;
 
 	s32 len = font->getDimension(text).Width + TabPadding;
@@ -513,7 +582,7 @@ s32 CGUIImageTabControl::calcTabWidth(s32 pos, IGUIFont* font, const wchar_t* te
 		len = TabHeight * tab->Scaling * tab->Texture->getSize().Width / tab->Texture->getSize().Height + TabPadding;
 	}
 			
-
+	/* TODO
 	// check if we miss the place to draw the tab-button
 	if ( withScrollControl && ScrollControl && pos+len > PriorArrow->getAbsolutePosition().UpperLeftCorner.X - 2 )
 	{
@@ -522,6 +591,7 @@ s32 CGUIImageTabControl::calcTabWidth(s32 pos, IGUIFont* font, const wchar_t* te
 		if ( TabPadding > 0 && tabMinWidth < TabPadding )
 			tabMinWidth = TabPadding;
 	}
+	*/
 	
 	return len;
 }
@@ -541,142 +611,133 @@ void CGUIImageTabControl::calcTabs()
 	
 	if ( !font )
 		return;
-
-	if ( FirstScrollTabIndex >= (s32)Tabs.size() )
-		FirstScrollTabIndex = ((s32)Tabs.size()) - 1;
-
-	if ( FirstScrollTabIndex < 0 )
-		FirstScrollTabIndex = 0;
 		
-	s32 pos;
+	for (u32 side=0; side < 4; ++side)
+	{
+		if ( SideFirstScrollTabIndex[side] >= (s32)SideTabs[side].size() )
+			SideFirstScrollTabIndex[side] = ((s32)SideTabs[side].size()) - 1;
 
-	if ( Side < 2 )
-	{
-		pos = AbsoluteRect.UpperLeftCorner.X + BorderWidth;
-	}
-	else
-	{
-		pos = AbsoluteRect.UpperLeftCorner.Y + BorderHeight;
-	}
-	
-	CGUIImageTab* tab;
-	
-	for (u32 i=FirstScrollTabIndex; i<Tabs.size(); ++i)
-	{
-		tab = Tabs[i];
-		
-		if ( tab )
+		if ( SideFirstScrollTabIndex[side] < 0 )
+			SideFirstScrollTabIndex[side] = 0;
+			
+		s32 pos;
+
+		if ( side < 2 )
 		{
-			tab->Active = false;
-			tab->Drawn = false;
+			pos = AbsoluteRect.UpperLeftCorner.X + BorderWidth;
 		}
-	}
-	
-	core::rect<s32> tabRect;
-	
-	LastScrollTabIndex = -1;
-
-	for (u32 i=FirstScrollTabIndex; i<Tabs.size(); ++i)
-	{
-		tab = Tabs[i];
-		
-		if ( tab )
+		else
 		{
-			const wchar_t* text = 0;
+			pos = AbsoluteRect.UpperLeftCorner.Y + BorderHeight;
+		}
 		
-			text = Tabs[i]->getText();
+		CGUIImageTab* tab;
+		
+		for (u32 i=0; i<Tabs.size(); ++i)
+		{
+			tab = Tabs[i];
+			
+			if ( tab )
+			{
+				tab->Active = false;
+				tab->Drawn = false;
+			}
+		}
+		
+		core::rect<s32> tabRect;
+		
+		SideLastScrollTabIndex[side] = -1;
 
-			// get text length
-			s32 len = calcTabWidth(pos, font, text, true, tab);
+		for (u32 i=SideFirstScrollTabIndex[side]; i<SideTabs[side].size(); ++i)
+		{
+			tab = SideTabs[side][i];
+			
+			if ( tab )
+			{
+				const wchar_t* text = 0;
+			
+				text = SideTabs[side][i]->getText();
+
+				// get text length
+				s32 len = calcTabWidth(pos, font, text, true, tab);
+						
+				if ( side < 2 )
+				{
+					tabRect.UpperLeftCorner.X = pos;
+					pos += len + TabSpacing;
 					
-			if ( Side < 2 )
-			{
-				tabRect.UpperLeftCorner.X = pos;
-				pos += len + TabSpacing;
-				
-				if ( ScrollControl
-					 && pos > AbsoluteRect.LowerRightCorner.X - ButtonOffset - 2 * ( ButtonWidth + ButtonSpacing ) - BorderWidth )
-				{
-					break;		
-				}				
-				
-				if ( pos > AbsoluteRect.LowerRightCorner.X - BorderWidth )
-				{
-					ScrollControl = true;	
-					break;		
-				}				
-			}
-			else
-			{
-				tabRect.UpperLeftCorner.Y = pos;			
-				pos += TabHeight + TabSpacing;
-				
-				if ( ScrollControl
-					 && pos > AbsoluteRect.LowerRightCorner.Y - ButtonOffset - 2 * ( ButtonHeight + ButtonSpacing ) - BorderHeight )
-				{
-					break;		
-				}				
-				
-				if ( pos > AbsoluteRect.LowerRightCorner.Y - BorderHeight )
-				{			
-					ScrollControl = true;
-					break;		
+					if ( SideScrollControl[side]
+						 && pos > AbsoluteRect.LowerRightCorner.X - ButtonOffset - 2 * ( ButtonWidth + ButtonSpacing ) - BorderWidth )
+					{
+						break;		
+					}				
+					
+					if ( pos > AbsoluteRect.LowerRightCorner.X - BorderWidth )
+					{
+						SideScrollControl[side] = true;	
+						break;		
+					}				
 				}
-			}
+				else
+				{
+					tabRect.UpperLeftCorner.Y = pos;			
+					pos += TabHeight + TabSpacing;
+					
+					if ( SideScrollControl[side]
+						 && pos > AbsoluteRect.LowerRightCorner.Y - ButtonOffset - 2 * ( ButtonHeight + ButtonSpacing ) - BorderHeight )
+					{
+						break;		
+					}				
+					
+					if ( pos > AbsoluteRect.LowerRightCorner.Y - BorderHeight )
+					{			
+						SideScrollControl[side] = true;
+						break;		
+					}
+				}
 
-			if ( Side == 0 )
-			{
-				tabRect.UpperLeftCorner.Y = AbsoluteRect.UpperLeftCorner.Y;
-			}
-			else if ( Side == 1 )
-			{
-				tabRect.UpperLeftCorner.Y = AbsoluteRect.LowerRightCorner.Y - TabHeight;
-			}
-			else if ( Side == 2 )
-			{
-				tabRect.UpperLeftCorner.X = AbsoluteRect.UpperLeftCorner.X;
-			}
-			else
-			{
-				tabRect.UpperLeftCorner.X = AbsoluteRect.LowerRightCorner.X - TabWidth;
-			}
-			
-			tabRect.LowerRightCorner.X = tabRect.UpperLeftCorner.X + len;
-			tabRect.LowerRightCorner.Y = tabRect.UpperLeftCorner.Y + TabHeight;
-
-			if ( i == (u32)ActiveTabIndex )
-			{
-				tab->Active = true;
-			}
-			
-			tab->Drawn = true;
-			tab->DrawnRect = tabRect;
-			
-			if ( text )
-				tab->refreshSkinColors();
+				if ( side == 0 )
+				{
+					tabRect.UpperLeftCorner.Y = AbsoluteRect.UpperLeftCorner.Y;
+				}
+				else if ( side == 1 )
+				{
+					tabRect.UpperLeftCorner.Y = AbsoluteRect.LowerRightCorner.Y - TabHeight;
+				}
+				else if ( side == 2 )
+				{
+					tabRect.UpperLeftCorner.X = AbsoluteRect.UpperLeftCorner.X;
+				}
+				else
+				{
+					tabRect.UpperLeftCorner.X = AbsoluteRect.LowerRightCorner.X - TabWidth;
+				}
 				
-			LastScrollTabIndex = i;
+				tabRect.LowerRightCorner.X = tabRect.UpperLeftCorner.X + len;
+				tabRect.LowerRightCorner.Y = tabRect.UpperLeftCorner.Y + TabHeight;
+
+				if ( tab->Number == ActiveTabIndex )
+				{
+					tab->Active = true;
+				}
+				
+				tab->Drawn = true;
+				tab->DrawnRect = tabRect;
+				
+				if ( text )
+					tab->refreshSkinColors();
+					
+				SideLastScrollTabIndex[side] = i;
+			}
 		}
 	}
-	
+		
 	ContentRect = AbsoluteRect;
 	
-	if ( Side == 0 )
-	{
-		ContentRect.UpperLeftCorner.Y += TabHeight;
-	}
-	else if ( Side == 1 )
-	{
-		ContentRect.LowerRightCorner.Y -= TabHeight;
-	}
-	else if ( Side == 2 )
-	{
-		ContentRect.UpperLeftCorner.X += TabWidth;
-	}
-	else if ( Side == 3 )
-	{
-		ContentRect.LowerRightCorner.X -= TabWidth;
-	}
+	ContentRect.UpperLeftCorner.Y += TabHeight;
+	ContentRect.LowerRightCorner.Y -= TabHeight;
+	ContentRect.UpperLeftCorner.X += TabWidth;
+	ContentRect.LowerRightCorner.X -= TabWidth;
 }
 
 
@@ -684,61 +745,64 @@ void CGUIImageTabControl::calcScrollButtons()
 {
 	core::rect<s32> buttonRect;
 	
-	if ( Side < 2 )
+	for (u32 side=0; side < 4; ++side)
 	{
-		buttonRect.UpperLeftCorner.X = AbsoluteRect.getWidth() - ButtonOffset - 2 * ButtonWidth - ButtonSpacing;
-		
-		if ( Side == 0 )
+		if ( side < 2 )
 		{
-			buttonRect.UpperLeftCorner.Y = TabHeight - ButtonHeight - ButtonDistance;
+			buttonRect.UpperLeftCorner.X = AbsoluteRect.getWidth() - ButtonOffset - 2 * ButtonWidth - ButtonSpacing;
+			
+			if ( side == 0 )
+			{
+				buttonRect.UpperLeftCorner.Y = TabHeight - ButtonHeight - ButtonDistance;
+			}
+			else
+			{
+				buttonRect.UpperLeftCorner.Y = AbsoluteRect.getHeight() - TabHeight + ButtonDistance;
+			}
+			
+			buttonRect.LowerRightCorner.X = buttonRect.UpperLeftCorner.X + ButtonWidth;
+			buttonRect.LowerRightCorner.Y = buttonRect.UpperLeftCorner.Y + ButtonHeight;
+			SidePriorArrow[side]->setRelativePosition(buttonRect);
+
+			buttonRect.UpperLeftCorner.X += ButtonWidth + ButtonSpacing;
+			
+			buttonRect.LowerRightCorner.X = buttonRect.UpperLeftCorner.X + ButtonWidth;
+			buttonRect.LowerRightCorner.Y = buttonRect.UpperLeftCorner.Y + ButtonHeight;
+			SideNextArrow[side]->setRelativePosition(buttonRect);
 		}
 		else
 		{
-			buttonRect.UpperLeftCorner.Y = AbsoluteRect.getHeight() - TabHeight + ButtonDistance;
+			buttonRect.UpperLeftCorner.Y = AbsoluteRect.getHeight() - ButtonOffset - 2 * ButtonHeight - ButtonSpacing;
+			
+			if ( side == 2 )
+			{
+				buttonRect.UpperLeftCorner.X = TabWidth - ButtonWidth - ButtonDistance;
+			}
+			else
+			{
+				buttonRect.UpperLeftCorner.X = AbsoluteRect.getWidth() - TabWidth + ButtonDistance;
+			}
+			
+			buttonRect.LowerRightCorner.X = buttonRect.UpperLeftCorner.X + ButtonWidth;
+			buttonRect.LowerRightCorner.Y = buttonRect.UpperLeftCorner.Y + ButtonHeight;
+			SidePriorArrow[side]->setRelativePosition(buttonRect);
+
+			buttonRect.UpperLeftCorner.Y += ButtonHeight + ButtonSpacing;
+			
+			buttonRect.LowerRightCorner.X = buttonRect.UpperLeftCorner.X + ButtonWidth;
+			buttonRect.LowerRightCorner.Y = buttonRect.UpperLeftCorner.Y + ButtonHeight;
+			SideNextArrow[side]->setRelativePosition(buttonRect);
 		}
 		
-		buttonRect.LowerRightCorner.X = buttonRect.UpperLeftCorner.X + ButtonWidth;
-		buttonRect.LowerRightCorner.Y = buttonRect.UpperLeftCorner.Y + ButtonHeight;
-		PriorArrow->setRelativePosition(buttonRect);
-
-		buttonRect.UpperLeftCorner.X += ButtonWidth + ButtonSpacing;
-		
-		buttonRect.LowerRightCorner.X = buttonRect.UpperLeftCorner.X + ButtonWidth;
-		buttonRect.LowerRightCorner.Y = buttonRect.UpperLeftCorner.Y + ButtonHeight;
-		NextArrow->setRelativePosition(buttonRect);
-	}
-	else
-	{
-		buttonRect.UpperLeftCorner.Y = AbsoluteRect.getHeight() - ButtonOffset - 2 * ButtonHeight - ButtonSpacing;
-		
-		if ( Side == 2 )
+		if (SidePriorArrow[side] && SideNextArrow[side])
 		{
-			buttonRect.UpperLeftCorner.X = TabWidth - ButtonWidth - ButtonDistance;
-		}
-		else
-		{
-			buttonRect.UpperLeftCorner.X = AbsoluteRect.getWidth() - TabWidth + ButtonDistance;
-		}
-		
-		buttonRect.LowerRightCorner.X = buttonRect.UpperLeftCorner.X + ButtonWidth;
-		buttonRect.LowerRightCorner.Y = buttonRect.UpperLeftCorner.Y + ButtonHeight;
-		PriorArrow->setRelativePosition(buttonRect);
+			SidePriorArrow[side]->setVisible( SideScrollControl[side] );
+			SideNextArrow[side]->setVisible( SideScrollControl[side] );
 
-		buttonRect.UpperLeftCorner.Y += ButtonHeight + ButtonSpacing;
-		
-		buttonRect.LowerRightCorner.X = buttonRect.UpperLeftCorner.X + ButtonWidth;
-		buttonRect.LowerRightCorner.Y = buttonRect.UpperLeftCorner.Y + ButtonHeight;
-		NextArrow->setRelativePosition(buttonRect);
+			bringToFront( SidePriorArrow[side] );
+			bringToFront( SideNextArrow[side] );
+		}
 	}
-	
-	if (!PriorArrow || !NextArrow)
-		return;
-		
-	PriorArrow->setVisible( ScrollControl );
-	NextArrow->setVisible( ScrollControl );
-
-	bringToFront( PriorArrow );
-	bringToFront( NextArrow );
 }
 
 
@@ -747,28 +811,15 @@ core::rect<s32> CGUIImageTabControl::calcRelativeRect()
 {
 	core::rect<s32> r;
 	
-	
 	r.UpperLeftCorner.X = 0;
 	r.UpperLeftCorner.Y = 0;
 	r.LowerRightCorner.X = AbsoluteRect.getWidth();	
 	r.LowerRightCorner.Y = AbsoluteRect.getHeight();
 	
-	if ( Side == 0 )
-	{
-		r.UpperLeftCorner.Y += TabHeight;
-	}
-	else if ( Side == 1 )
-	{
-		r.LowerRightCorner.Y -= TabHeight;
-	}
-	else if ( Side == 2 )
-	{
-		r.UpperLeftCorner.X += TabWidth;
-	}
-	else if ( Side == 3 )
-	{
-		r.LowerRightCorner.X -= TabWidth;
-	}
+	r.UpperLeftCorner.Y += TabHeight;
+	r.LowerRightCorner.Y -= TabHeight;
+	r.UpperLeftCorner.X += TabWidth;
+	r.LowerRightCorner.X -= TabWidth;
 
 	return r;
 }
@@ -778,17 +829,18 @@ void CGUIImageTabControl::drawTab(CGUIImageTab* tab, IGUIFont* font)
 {
 	core::rect<s32> tab_rect(tab->DrawnRect);				
 	const wchar_t* text = tab->getText();
-	video::ITexture* tab_texture = tab->Active ? ActiveTabTexture : TabTexture;
+	u32 side = tab->Side;
+	video::ITexture* tab_texture = tab->Active ? SideActiveTabTexture[side] : SideTabTexture[side];
 
-	if ( Side == 0 )
+	if ( side == 0 )
 	{
 		tab_rect.LowerRightCorner.Y += BorderOffset;
 	}
-	else if ( Side == 1 )
+	else if ( side == 1 )
 	{
 		tab_rect.UpperLeftCorner.Y -= BorderOffset;
 	}
-	else if ( Side == 2 )
+	else if ( side == 2 )
 	{
 		tab_rect.LowerRightCorner.X += BorderOffset;
 	}
@@ -829,32 +881,35 @@ void CGUIImageTabControl::draw()
 	calcTabs();
 	calcScrollButtons();
 	
-	CGUIImageTab* activeTab = 0;
-		
-	for (s32 i=FirstScrollTabIndex; i<=LastScrollTabIndex; ++i)
+	for (u32 side=0; side < 4; ++side)
 	{
-		CGUIImageTab* tab = Tabs[i];
-		
-		if (tab)
+		CGUIImageTab* activeTab = 0;
+			
+		for (s32 i=SideFirstScrollTabIndex[side]; i<=SideLastScrollTabIndex[side]; ++i)
 		{
-			if (tab->Active)
-				activeTab = tab;
-			else
-				drawTab(tab, font);
+			CGUIImageTab* tab = SideTabs[side][i];
+			
+			if (tab)
+			{
+				if (tab->Active)
+					activeTab = tab;
+				else
+					drawTab(tab, font);
+			}
 		}
-	}
 
-	Skin->drawStretchedImage(ContentRect, ContentTexture);
-	
-	if (activeTab)
-		drawTab(activeTab, font);
-
-	if ( PriorArrow )
-		PriorArrow->setEnabled(ScrollControl);
-	
-	if ( NextArrow )
-		NextArrow->setEnabled(ScrollControl);
+		Skin->drawStretchedImage(ContentRect, ContentTexture);
 		
+		if (activeTab)
+			drawTab(activeTab, font);
+
+		if ( SidePriorArrow[side] )
+			SidePriorArrow[side]->setEnabled(SideScrollControl[side]);
+		
+		if ( SideNextArrow[side] )
+			SideNextArrow[side]->setEnabled(SideScrollControl[side]);
+	}
+	
 	refreshSprites();
 
 	IGUIElement::draw();
@@ -932,19 +987,23 @@ s32 CGUIImageTabControl::getTabAt(s32 xpos, s32 ypos) const
 {
 	core::position2di p(xpos, ypos);
 
-	for (s32 i=FirstScrollTabIndex; i<=LastScrollTabIndex; ++i)
+	for (u32 side=0; side < 4; ++side)
 	{
-		CGUIImageTab* tab = Tabs[i];
-		
-		if ( tab )
+		for (s32 i=SideFirstScrollTabIndex[side]; i<=SideLastScrollTabIndex[side]; ++i)
 		{
-			if ( tab->Drawn
-			     && tab->DrawnRect.isPointInside(p))
+			CGUIImageTab* tab = SideTabs[side][i];
+			
+			if ( tab )
 			{
-				return i;
+				if ( tab->Drawn
+					 && tab->DrawnRect.isPointInside(p))
+				{
+					return i;
+				}
 			}
 		}
 	}
+	
 	return -1;
 }
 
@@ -1005,6 +1064,17 @@ void CGUIImageTabControl::removeChild(IGUIElement* child)
 		{
 			Tabs[i]->drop();
 			Tabs.erase(i);
+			for (u32 side=0; side < 4; ++side)
+			{
+				for (u32 j=0; j < SideTabs[side].size(); ++j)
+				{
+					if (SideTabs[side][j] == child)
+					{
+						SideTabs[side].erase(j);
+						break;
+					}
+				}
+			}
 			isTab = true;
 		}
 		else
@@ -1037,8 +1107,6 @@ void CGUIImageTabControl::serializeAttributes(io::IAttributes* out, io::SAttribu
 	IGUITabControl::serializeAttributes(out,options);
 
 	out->addInt ("ActiveTabIndex",	ActiveTabIndex);
-	out->addBool("Border",		ShowBorder);
-	out->addBool("FillBackground",	ShowBackground);
 	out->addInt ("TabHeight",	TabHeight);
 	out->addInt ("TabWidth", TabWidth);
 	out->addEnum("TabVerticalAlignment", s32(VerticalAlignment), GUIAlignmentNames);
@@ -1048,9 +1116,6 @@ void CGUIImageTabControl::serializeAttributes(io::IAttributes* out, io::SAttribu
 //! Reads attributes of the element
 void CGUIImageTabControl::deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0)
 {
-	ShowBorder      = in->getAttributeAsBool("Border");
-	ShowBackground  = in->getAttributeAsBool("FillBackground");
-
 	ActiveTabIndex = -1;
 
 	setTabHeight(in->getAttributeAsInt("TabHeight"));

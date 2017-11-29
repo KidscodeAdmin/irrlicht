@@ -27,7 +27,7 @@ namespace gui
 		CGUIImageTab(s32 number, IGUIEnvironment* environment,
 			IGUIElement* parent, const core::rect<s32>& rectangle,
 			s32 id, 
-			video::ITexture *texture=0, f32 scaling=1.0f, s32 side=0);
+			video::ITexture *texture=0, f32 scaling=1.0f, u32 side=0);
 
 		//! destructor
 		//virtual ~CGUIImageTab();
@@ -76,7 +76,7 @@ namespace gui
 		bool DrawBackground;
 		video::ITexture *Texture;
 		f32 Scaling;
-		s32 Side;
+		u32 Side;
 		bool Active;
 		bool Drawn;
 		core::rect<s32> DrawnRect;
@@ -90,14 +90,19 @@ namespace gui
 
 		//! destructor
 		CGUIImageTabControl(IGUIEnvironment* environment, 
-			IGUIElement* parent, const core::rect<s32>& rectangle,
-			bool show_background, bool show_border, s32 side, s32 id, 
+			IGUIElement* parent, const core::rect<s32>& rectangle, s32 id, 
 			s32 tab_height, s32 tab_width, s32 tab_padding, s32 tab_spacing, 
 			s32 width, s32 height, s32 border_width, s32 border_height, s32 border_offset,
 			s32 button_width, s32 button_height, s32 button_spacing, s32 button_offset, s32 button_distance, 
-			video::ITexture* content_texture, video::ITexture* tab_texture, video::ITexture* active_tab_texture,  
-			video::ITexture* prior_arrow_texture, video::ITexture* prior_arrow_pressed_texture, 
-			video::ITexture* next_arrow_texture, video::ITexture* next_arrow_pressed_texture);
+			video::ITexture* content_texture, 
+			video::ITexture* top_tab_texture, video::ITexture* top_active_tab_texture,  
+			video::ITexture* bottom_tab_texture, video::ITexture* bottom_active_tab_texture,  
+			video::ITexture* left_tab_texture, video::ITexture* left_active_tab_texture,  
+			video::ITexture* right_tab_texture, video::ITexture* right_active_tab_texture,  
+			video::ITexture* up_arrow_texture, video::ITexture* up_arrow_pressed_texture,
+			video::ITexture* down_arrow_texture, video::ITexture* down_arrow_pressed_texture,
+			video::ITexture* left_arrow_texture, video::ITexture* left_arrow_pressed_texture,
+			video::ITexture* right_arrow_texture, video::ITexture* right_arrow_pressed_texture);
 			
 		//! destructor
 		virtual ~CGUIImageTabControl();
@@ -107,7 +112,7 @@ namespace gui
 		
 		//! Adds an image tab
 		virtual CGUIImageTab* addImageTab(const wchar_t* caption, s32 id=-1, 
-			video::ITexture* texture=0, f32 scaling=1.0f);
+			video::ITexture* texture=0, f32 scaling=1.0f, u32 side=0);
 
 		//! Adds a tab that has already been created
 		virtual void addTab(CGUIImageTab* tab);
@@ -206,8 +211,8 @@ namespace gui
 		virtual void updateAbsolutePosition();
 
 	
-		void scrollLeft();
-		void scrollRight();
+		void scrollLeft(u32 side);
+		void scrollRight(u32 side);
 		s32 calcTabWidth(s32 pos, IGUIFont* font, const wchar_t* text, bool withScrollControl,
 			CGUIImageTab* tab) const;
 		void calcTabs();
@@ -218,10 +223,8 @@ namespace gui
 		void drawTab(CGUIImageTab* tab, IGUIFont* font);
 		void refreshSprites();
 
-		core::array<CGUIImageTab*> Tabs;	// CGUIImageTab* because we need setNumber (which is certainly not nice)
-		bool ShowBackground;
-		bool ShowBorder;
-		s32 Side;
+		core::array<CGUIImageTab*> Tabs;
+		core::array<CGUIImageTab*> SideTabs[4];
 		s32 TabHeight;
 		s32 TabWidth;
 		s32 TabMaxWidth;
@@ -238,20 +241,20 @@ namespace gui
 		s32 ButtonOffset;
 		s32 ButtonDistance;
 		gui::EGUI_ALIGNMENT VerticalAlignment;
-		bool ScrollControl;
-		IGUIButton* PriorArrow;
-		IGUIButton* NextArrow;
+		bool SideScrollControl[4];
+		IGUIButton* SidePriorArrow[4];
+		IGUIButton* SideNextArrow[4];
 		s32 ActiveTabIndex;
-		s32 FirstScrollTabIndex;
-		s32 LastScrollTabIndex;
+		s32 SideFirstScrollTabIndex[4];
+		s32 SideLastScrollTabIndex[4];
 		IGUISkin * Skin;
 		video::ITexture* ContentTexture;
-		video::ITexture* TabTexture;
-		video::ITexture* ActiveTabTexture;
-		video::ITexture* PriorArrowTexture;
-		video::ITexture* PriorArrowPressedTexture;
-		video::ITexture* NextArrowTexture;
-		video::ITexture* NextArrowPressedTexture;
+		video::ITexture* SideTabTexture[4];
+		video::ITexture* SideActiveTabTexture[4];
+		video::ITexture* SidePriorArrowTexture[4];
+		video::ITexture* SidePriorArrowPressedTexture[4];
+		video::ITexture* SideNextArrowTexture[4];
+		video::ITexture* SideNextArrowPressedTexture[4];
 		irr::core::rect<s32> ContentRect;
 	};
 } // end namespace gui
