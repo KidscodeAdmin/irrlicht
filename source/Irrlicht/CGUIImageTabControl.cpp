@@ -624,11 +624,11 @@ void CGUIImageTabControl::calcTabs()
 
 		if ( side < 2 )
 		{
-			pos = AbsoluteRect.UpperLeftCorner.X + BorderWidth;
+			pos = AbsoluteRect.UpperLeftCorner.X + TabWidth + BorderWidth;
 		}
 		else
 		{
-			pos = AbsoluteRect.UpperLeftCorner.Y + BorderHeight;
+			pos = AbsoluteRect.UpperLeftCorner.Y + TabHeight + BorderHeight;
 		}
 		
 		CGUIImageTab* tab;
@@ -667,12 +667,12 @@ void CGUIImageTabControl::calcTabs()
 					pos += len + TabSpacing;
 					
 					if ( SideScrollControl[side]
-						 && pos > AbsoluteRect.LowerRightCorner.X - ButtonOffset - 2 * ( ButtonWidth + ButtonSpacing ) - BorderWidth )
+						 && pos > AbsoluteRect.LowerRightCorner.X - TabWidth - ButtonOffset - 2 * ( ButtonWidth + ButtonSpacing ) - BorderWidth )
 					{
 						break;		
 					}				
 					
-					if ( pos > AbsoluteRect.LowerRightCorner.X - BorderWidth )
+					if ( pos > AbsoluteRect.LowerRightCorner.X - TabWidth - BorderWidth )
 					{
 						SideScrollControl[side] = true;	
 						break;		
@@ -684,12 +684,12 @@ void CGUIImageTabControl::calcTabs()
 					pos += TabHeight + TabSpacing;
 					
 					if ( SideScrollControl[side]
-						 && pos > AbsoluteRect.LowerRightCorner.Y - ButtonOffset - 2 * ( ButtonHeight + ButtonSpacing ) - BorderHeight )
+						 && pos > AbsoluteRect.LowerRightCorner.Y - TabHeight - ButtonOffset - 2 * ( ButtonHeight + ButtonSpacing ) - BorderHeight )
 					{
 						break;		
 					}				
 					
-					if ( pos > AbsoluteRect.LowerRightCorner.Y - BorderHeight )
+					if ( pos > AbsoluteRect.LowerRightCorner.Y - TabHeight - BorderHeight )
 					{			
 						SideScrollControl[side] = true;
 						break;		
@@ -749,7 +749,7 @@ void CGUIImageTabControl::calcScrollButtons()
 	{
 		if ( side < 2 )
 		{
-			buttonRect.UpperLeftCorner.X = AbsoluteRect.getWidth() - ButtonOffset - 2 * ButtonWidth - ButtonSpacing;
+			buttonRect.UpperLeftCorner.X = AbsoluteRect.getWidth() - TabWidth - ButtonOffset - 2 * ButtonWidth - ButtonSpacing;
 			
 			if ( side == 0 )
 			{
@@ -772,7 +772,7 @@ void CGUIImageTabControl::calcScrollButtons()
 		}
 		else
 		{
-			buttonRect.UpperLeftCorner.Y = AbsoluteRect.getHeight() - ButtonOffset - 2 * ButtonHeight - ButtonSpacing;
+			buttonRect.UpperLeftCorner.Y = AbsoluteRect.getHeight() - TabHeight - ButtonOffset - 2 * ButtonHeight - ButtonSpacing;
 			
 			if ( side == 2 )
 			{
