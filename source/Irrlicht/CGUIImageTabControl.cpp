@@ -532,6 +532,33 @@ bool CGUIImageTabControl::OnEvent(const SEvent& event)
 				}
 				break;
 			}
+			case EMIE_MOUSE_WHEEL:
+			{
+				s32 idx = getTabAt(event.MouseInput.X, event.MouseInput.Y);
+				if ( idx >= 0 )
+				{
+					s32 new_tab_index = ActiveTabIndex;
+					
+					if ( event.MouseInput.Wheel < 0 )
+						--new_tab_index;
+					else if ( event.MouseInput.Wheel > 0 )
+						++new_tab_index;
+						
+					if ( new_tab_index < 0 )
+						new_tab_index = Tabs.size() - 1;
+					else if ( new_tab_index >= (s32)Tabs.size() )
+						new_tab_index = 0;
+					
+					if ( new_tab_index != ActiveTabIndex
+					     && new_tab_index >= 0 
+					     && new_tab_index < (s32)Tabs.size() )
+					{
+						setActiveTab(new_tab_index);
+						return true;
+					}
+				}
+				break;
+			}
 			default:
 				break;
 			}
