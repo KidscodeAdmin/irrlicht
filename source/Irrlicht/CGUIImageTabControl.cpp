@@ -554,6 +554,24 @@ bool CGUIImageTabControl::OnEvent(const SEvent& event)
 					     && new_tab_index < (s32)Tabs.size() )
 					{
 						setActiveTab(new_tab_index);
+						CGUIImageTab* tab = Tabs[new_tab_index];
+						u32 side = tab->Side;
+	
+						if ( SideScrollControl[side] )
+						{
+							for (s32 side_tab_index=0; side_tab_index < (s32)SideTabs[side].size(); ++side_tab_index)
+							{
+								if ( SideTabs[side][side_tab_index] == tab )
+								{
+									if ( side_tab_index < SideFirstScrollTabIndex[side]
+									     || side_tab_index > SideLastScrollTabIndex[side] )
+									{
+										SideFirstScrollTabIndex[side] = side_tab_index;
+										SideLastScrollTabIndex[side] = side_tab_index;
+									}
+								}
+							}
+						}
 						return true;
 					}
 				}
