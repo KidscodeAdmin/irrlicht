@@ -521,8 +521,7 @@ bool CGUIImageTabControl::OnEvent(const SEvent& event)
 			switch(event.MouseInput.Event)
 			{
 			case EMIE_LMOUSE_PRESSED_DOWN:
-				// todo: dragging tabs around
-				return true;
+				break;
 			case EMIE_LMOUSE_LEFT_UP:
 			{
 				s32 idx = getTabAt(event.MouseInput.X, event.MouseInput.Y);
@@ -581,17 +580,6 @@ s32 CGUIImageTabControl::calcTabWidth(s32 pos, IGUIFont* font, const wchar_t* te
 	{
 		len = TabHeight * tab->Scaling * tab->Texture->getSize().Width / tab->Texture->getSize().Height + TabPadding;
 	}
-			
-	/* TODO
-	// check if we miss the place to draw the tab-button
-	if ( withScrollControl && ScrollControl && pos+len > PriorArrow->getAbsolutePosition().UpperLeftCorner.X - 2 )
-	{
-		s32 tabMinWidth = font->getDimension(L"A").Width;
-		
-		if ( TabPadding > 0 && tabMinWidth < TabPadding )
-			tabMinWidth = TabPadding;
-	}
-	*/
 	
 	return len;
 }
