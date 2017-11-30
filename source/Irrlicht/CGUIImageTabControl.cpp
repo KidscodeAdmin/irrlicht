@@ -540,9 +540,9 @@ bool CGUIImageTabControl::OnEvent(const SEvent& event)
 					s32 new_tab_index = ActiveTabIndex;
 					
 					if ( event.MouseInput.Wheel < 0 )
-						--new_tab_index;
-					else if ( event.MouseInput.Wheel > 0 )
 						++new_tab_index;
+					else if ( event.MouseInput.Wheel > 0 )
+						--new_tab_index;
 						
 					if ( new_tab_index < 0 )
 						new_tab_index = Tabs.size() - 1;
