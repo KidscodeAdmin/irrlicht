@@ -145,7 +145,7 @@ bool CGUIScrollBar::OnEvent(const SEvent& event)
 			switch(event.MouseInput.Event)
 			{
 			case EMIE_MOUSE_WHEEL:
-				if (Environment->hasFocus(this))
+				// :PATCH: if (Environment->hasFocus(this))
 				{
 					// thanks to a bug report by REAPER
 					// thanks to tommi by tommi for another bugfix
