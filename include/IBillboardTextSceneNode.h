@@ -49,7 +49,8 @@ public:
 	
 	//! Sets the text background
 	virtual void setTextBackground(const video::SColor & backgroundColor, 
-		const video::SColor & borderColor, const f32 border, const f32 padding) = 0;
+		const video::SColor & borderColor, const f32 border, 
+		const f32 xPadding, const f32 yPadding) = 0;
 
 	//! Sets the text offset
 	virtual void setTextOffset(const f32 xOffset, const f32 yOffset) = 0;

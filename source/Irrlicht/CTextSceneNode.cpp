@@ -96,7 +96,7 @@ CBillboardTextSceneNode::CBillboardTextSceneNode(ISceneNode* parent, ISceneManag
 : IBillboardTextSceneNode(parent, mgr, id, position),
 	LineCount(1), Color(colorTop), Font(0), ColorTop(colorTop), ColorBottom(shade_bottom), 
 	Background(false), BackgroundColor(128,128,128,128), BorderColor(128,64,64,64), 
-	Border(0.1f), Padding(0.2f), XOffset(0.0f), YOffset(0.0f), Mesh(0)
+	Border(0.1f), XPadding(0.2f), YPadding(0.1f), XOffset(0.0f), YOffset(0.0f), Mesh(0)
 {
 	#ifdef _DEBUG
 	setDebugName("CBillboardTextSceneNode");
@@ -327,8 +327,8 @@ void CBillboardTextSceneNode::OnAnimate(u32 timeMs)
 	if ( LineCount > 1 )
 		line_pos += line_vertical * -(f32)( LineCount - 1);
 	
-	//line_pos += horizontal * XOffset;
-	//line_pos += vertical * YOffset;
+	line_pos += horizontal * ( XOffset / textLength );
+	line_pos += vertical * ( YOffset / LineCount );
 	
 	core::vector3df pos = line_pos;
 
@@ -396,10 +396,11 @@ void CBillboardTextSceneNode::renderBackground()
 		
 	video::S3DVertex vertices[4];
 	u16 indices[6];
-	f32 border = Size.Height * Border;
-	f32 padding = Size.Height * Padding;
-	f32 width = Size.Width + padding;
-	f32 height = Size.Height + padding;
+	f32 border = Size.Height / LineCount * Border;
+	f32 x_padding = Size.Height / LineCount * XPadding;
+	f32 y_padding = Size.Height / LineCount * YPadding;
+	f32 width = Size.Width + x_padding * 2;
+	f32 height = Size.Height + y_padding * 2;
 	
 	indices[0] = 0;
 	indices[1] = 2;

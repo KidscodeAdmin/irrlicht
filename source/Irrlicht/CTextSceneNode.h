@@ -120,13 +120,15 @@ namespace scene
 
 		//! Sets the text background
 		virtual void setTextBackground(const video::SColor & backgroundColor, 
-			const video::SColor & borderColor, const f32 border, const f32 padding)
+			const video::SColor & borderColor, const f32 border,
+			const f32 xPadding, const f32 yPadding)
 		{
 			Background = true;
 			BackgroundColor = backgroundColor;
 			BorderColor = borderColor;
 			Border = border;
-			Padding = padding;
+			XPadding = xPadding;
+			YPadding = yPadding;
 		}
 
 		//! Sets the text offset
@@ -169,7 +171,8 @@ namespace scene
 		video::SColor BackgroundColor;
 		video::SColor BorderColor;
 		float Border;
-		float Padding;		
+		float XPadding;		
+		float YPadding;		
 		float XOffset;
 		float YOffset;
 		
