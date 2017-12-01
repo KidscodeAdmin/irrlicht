@@ -257,6 +257,8 @@ void CBillboardTextSceneNode::OnAnimate(u32 timeMs)
 	}
 	if (textLength<0.0f)
 		textLength=1.0f;
+		
+	f32 space_width = Size.Height * 0.05f;
 
 	//const core::matrix4 &m = camera->getViewFrustum()->Matrices[ video::ETS_VIEW ];
 
@@ -287,7 +289,7 @@ void CBillboardTextSceneNode::OnAnimate(u32 timeMs)
 	view *= -1.0f;
 
 	// center text
-	pos += space * (Size.Width * -0.5f);
+	pos += space * (Size.Width * -0.5f + space_width);
 
 	for ( i = 0; i!= Symbol.size(); ++i )
 	{
@@ -341,9 +343,12 @@ void CBillboardTextSceneNode::renderBackground()
 		
 	video::S3DVertex vertices[4];
 	u16 indices[6];
-	video::SColor colorTop(255,255,255,255);
-	video::SColor colorBottom(255,0,255,255);	
-	f32 top_edge_width = Size.Width;
+	video::SColor backgroundColor(128,128,128,128);
+	video::SColor borderColor(64,64,64,128);	
+	f32 border = Size.Height * 0.1f;
+	f32 padding = Size.Height * 0.2f;
+	f32 width = Size.Width + padding;
+	f32 height = Size.Height + padding;
 	
 	indices[0] = 0;
 	indices[1] = 2;
@@ -353,16 +358,16 @@ void CBillboardTextSceneNode::renderBackground()
 	indices[5] = 2;
 
 	vertices[0].TCoords.set(1.0f, 1.0f);
-	vertices[0].Color = colorBottom;
+	vertices[0].Color = backgroundColor;
 
 	vertices[1].TCoords.set(1.0f, 0.0f);
-	vertices[1].Color = colorTop;
+	vertices[1].Color = backgroundColor;
 
 	vertices[2].TCoords.set(0.0f, 0.0f);
-	vertices[2].Color = colorTop;
+	vertices[2].Color = backgroundColor;
 
 	vertices[3].TCoords.set(0.0f, 1.0f);
-	vertices[3].Color = colorBottom;
+	vertices[3].Color = backgroundColor;
 	
 	// make billboard look to camera
 
@@ -380,13 +385,15 @@ void CBillboardTextSceneNode::renderBackground()
 		horizontal.set(up.Y,up.X,up.Z);
 	}
 	horizontal.normalize();
-	core::vector3df topHorizontal = horizontal * 0.5f * top_edge_width;
-	horizontal *= 0.5f * Size.Width;
+	core::vector3df borderHorizontal = horizontal * border;
+	horizontal *= 0.5f * width;
 
 	// pointing down!
 	core::vector3df vertical = horizontal.crossProduct(view);
 	vertical.normalize();
-	vertical *= 0.5f * Size.Height;
+	core::vector3df borderVertical = vertical * border;
+	vertical *= 0.5f * height;
+
 
 	view *= -1.0f;
 
@@ -399,17 +406,48 @@ void CBillboardTextSceneNode::renderBackground()
 	| \|
 	3--0
 	*/
-	vertices[0].Pos = pos + horizontal + vertical;
-	vertices[1].Pos = pos + topHorizontal - vertical;
-	vertices[2].Pos = pos - topHorizontal - vertical;
-	vertices[3].Pos = pos - horizontal + vertical;
-
-	// draw
-
+	
 	driver->setTransform(video::ETS_WORLD, core::IdentityMatrix);
-
 	driver->setMaterial(Material);
-
+	
+	// background
+	vertices[2].Pos = pos - horizontal - vertical;
+	vertices[1].Pos = pos + horizontal - vertical;
+	vertices[3].Pos = pos - horizontal + vertical;
+	vertices[0].Pos = pos + horizontal + vertical;
+	driver->drawIndexedTriangleList(vertices, 4, indices, 2);
+	
+	vertices[0].Color = borderColor;
+	vertices[1].Color = borderColor;
+	vertices[2].Color = borderColor;
+	vertices[3].Color = borderColor;
+	
+	// top border
+	vertices[2].Pos = pos - horizontal - borderHorizontal - vertical - borderVertical;
+	vertices[1].Pos = pos + horizontal + borderHorizontal - vertical - borderVertical;
+	vertices[3].Pos = pos - horizontal - borderHorizontal - vertical;
+	vertices[0].Pos = pos + horizontal + borderHorizontal - vertical;
+	driver->drawIndexedTriangleList(vertices, 4, indices, 2);
+	
+	// bottom border
+	vertices[2].Pos = pos - horizontal - borderHorizontal + vertical;
+	vertices[1].Pos = pos + horizontal + borderHorizontal + vertical;
+	vertices[3].Pos = pos - horizontal - borderHorizontal + vertical + borderVertical;
+	vertices[0].Pos = pos + horizontal + borderHorizontal + vertical + borderVertical;
+	driver->drawIndexedTriangleList(vertices, 4, indices, 2);
+	
+	// left border
+	vertices[2].Pos = pos - horizontal - borderHorizontal - vertical;
+	vertices[1].Pos = pos - horizontal - vertical;
+	vertices[3].Pos = pos - horizontal - borderHorizontal + vertical;
+	vertices[0].Pos = pos - horizontal + vertical;
+	driver->drawIndexedTriangleList(vertices, 4, indices, 2);
+	
+	// right border
+	vertices[2].Pos = pos + horizontal - vertical;
+	vertices[1].Pos = pos + horizontal + borderHorizontal - vertical;
+	vertices[3].Pos = pos + horizontal + vertical;
+	vertices[0].Pos = pos + horizontal + borderHorizontal + vertical;
 	driver->drawIndexedTriangleList(vertices, 4, indices, 2);
 }
 
