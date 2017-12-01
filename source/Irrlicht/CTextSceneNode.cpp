@@ -330,12 +330,98 @@ void CBillboardTextSceneNode::OnRegisterSceneNode()
 }
 
 
+//! render background
+void CBillboardTextSceneNode::renderBackground()
+{
+	video::IVideoDriver* driver = SceneManager->getVideoDriver();
+	ICameraSceneNode* camera = SceneManager->getActiveCamera();
+
+	if (!camera || !driver)
+		return;
+		
+	video::S3DVertex vertices[4];
+	u16 indices[6];
+	video::SColor colorTop(255,255,255,255);
+	video::SColor colorBottom(255,0,255,255);	
+	f32 top_edge_width = Size.Width;
+	
+	indices[0] = 0;
+	indices[1] = 2;
+	indices[2] = 1;
+	indices[3] = 0;
+	indices[4] = 3;
+	indices[5] = 2;
+
+	vertices[0].TCoords.set(1.0f, 1.0f);
+	vertices[0].Color = colorBottom;
+
+	vertices[1].TCoords.set(1.0f, 0.0f);
+	vertices[1].Color = colorTop;
+
+	vertices[2].TCoords.set(0.0f, 0.0f);
+	vertices[2].Color = colorTop;
+
+	vertices[3].TCoords.set(0.0f, 1.0f);
+	vertices[3].Color = colorBottom;
+	
+	// make billboard look to camera
+
+	core::vector3df pos = getAbsolutePosition();
+
+	core::vector3df campos = camera->getAbsolutePosition();
+	core::vector3df target = camera->getTarget();
+	core::vector3df up = camera->getUpVector();
+	core::vector3df view = target - campos;
+	view.normalize();
+
+	core::vector3df horizontal = up.crossProduct(view);
+	if ( horizontal.getLength() == 0 )
+	{
+		horizontal.set(up.Y,up.X,up.Z);
+	}
+	horizontal.normalize();
+	core::vector3df topHorizontal = horizontal * 0.5f * top_edge_width;
+	horizontal *= 0.5f * Size.Width;
+
+	// pointing down!
+	core::vector3df vertical = horizontal.crossProduct(view);
+	vertical.normalize();
+	vertical *= 0.5f * Size.Height;
+
+	view *= -1.0f;
+
+	for (s32 i=0; i<4; ++i)
+		vertices[i].Normal = view;
+
+	/* Vertices are:
+	2--1
+	|\ |
+	| \|
+	3--0
+	*/
+	vertices[0].Pos = pos + horizontal + vertical;
+	vertices[1].Pos = pos + topHorizontal - vertical;
+	vertices[2].Pos = pos - topHorizontal - vertical;
+	vertices[3].Pos = pos - horizontal + vertical;
+
+	// draw
+
+	driver->setTransform(video::ETS_WORLD, core::IdentityMatrix);
+
+	driver->setMaterial(Material);
+
+	driver->drawIndexedTriangleList(vertices, 4, indices, 2);
+}
+
+
 //! render
 void CBillboardTextSceneNode::render()
 {
 	if ( !Mesh )
 		return;
 
+	renderBackground();
+	
 	video::IVideoDriver* driver = SceneManager->getVideoDriver();
 
 	// draw

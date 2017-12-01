@@ -75,6 +75,9 @@ namespace scene
 		//! registers the node into the transparent pass
 		virtual void OnRegisterSceneNode();
 
+		//! renders the background.
+		virtual void renderBackground();
+		
 		//! renders the node.
 		virtual void render();
 
