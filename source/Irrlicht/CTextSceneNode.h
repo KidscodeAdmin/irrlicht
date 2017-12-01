@@ -118,11 +118,31 @@ namespace scene
 		//! \param bottomColor: stores the color of the bottom vertices
 		virtual void getColor(video::SColor & topColor, video::SColor & bottomColor) const;
 
+		//! Sets the text background
+		virtual void setTextBackground(const video::SColor & backgroundColor, 
+			const video::SColor & borderColor, const f32 border, const f32 padding)
+		{
+			Background = true;
+			BackgroundColor = backgroundColor;
+			BorderColor = borderColor;
+			Border = border;
+			Padding = padding;
+		}
+
+		//! Sets the text offset
+		virtual void setTextOffset(const f32 xOffset, const f32 yOffset)
+		{
+			XOffset = xOffset;
+			YOffset = yOffset;
+		}
+
+		//! Sets the size
 		virtual void setSize(f32 height, f32 bottomEdgeWidth, f32 topEdgeWidth)
 		{
 			setSize(core::dimension2df(bottomEdgeWidth, height));
 		}
 
+		//! Gets the size
 		virtual void getSize(f32& height, f32& bottomEdgeWidth, f32& topEdgeWidth) const
 		{
 			height = Size.Height;
@@ -144,6 +164,15 @@ namespace scene
 
 		video::SColor ColorTop;
 		video::SColor ColorBottom;
+		
+		bool Background;
+		video::SColor BackgroundColor;
+		video::SColor BorderColor;
+		float Border;
+		float Padding;		
+		float XOffset;
+		float YOffset;
+		
 		struct SSymbolInfo
 		{
 			u32 bufNo;

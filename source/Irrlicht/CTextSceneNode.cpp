@@ -94,7 +94,9 @@ CBillboardTextSceneNode::CBillboardTextSceneNode(ISceneNode* parent, ISceneManag
 	const core::vector3df& position, const core::dimension2d<f32>& size,
 	video::SColor colorTop,video::SColor shade_bottom )
 : IBillboardTextSceneNode(parent, mgr, id, position),
-	LineCount(1), Color(colorTop), Font(0), ColorTop(colorTop), ColorBottom(shade_bottom), Mesh(0)
+	LineCount(1), Color(colorTop), Font(0), ColorTop(colorTop), ColorBottom(shade_bottom), 
+	Background(false), BackgroundColor(128,128,128,128), BorderColor(128,64,64,64), 
+	Border(0.1f), Padding(0.2f), XOffset(0.0f), YOffset(0.0f), Mesh(0)
 {
 	#ifdef _DEBUG
 	setDebugName("CBillboardTextSceneNode");
@@ -286,9 +288,6 @@ void CBillboardTextSceneNode::OnAnimate(u32 timeMs)
 	if (textLength<0.0f)
 		textLength=1.0f;
 		
-	f32 x_offset = Size.Height * 0.05f;
-	f32 y_offset = 0;
-
 	//const core::matrix4 &m = camera->getViewFrustum()->Matrices[ video::ETS_VIEW ];
 
 	// make billboard look to camera
@@ -321,8 +320,8 @@ void CBillboardTextSceneNode::OnAnimate(u32 timeMs)
 	view *= -1.0f;
 
 	// center text
-	line_pos += line_horizontal * (Size.Width * -0.5f + x_offset);
-	line_pos += line_vertical * (LineCount * -0.5f + y_offset);
+	line_pos += line_horizontal * (Size.Width * -0.5f + XOffset);
+	line_pos += line_vertical * (LineCount * -0.5f + YOffset);
 	
 	core::vector3df pos = line_pos;
 
@@ -366,6 +365,7 @@ void CBillboardTextSceneNode::OnAnimate(u32 timeMs)
 	mat.transformBoxEx(BBox);
 }
 
+
 void CBillboardTextSceneNode::OnRegisterSceneNode()
 {
 	SceneManager->registerNodeForRendering(this, ESNRP_TRANSPARENT);
@@ -384,10 +384,8 @@ void CBillboardTextSceneNode::renderBackground()
 		
 	video::S3DVertex vertices[4];
 	u16 indices[6];
-	video::SColor backgroundColor(128,128,128,128);
-	video::SColor borderColor(64,64,64,128);	
-	f32 border = Size.Height * 0.1f;
-	f32 padding = Size.Height * 0.2f;
+	f32 border = Size.Height * Border;
+	f32 padding = Size.Height * Padding;
 	f32 width = Size.Width + padding;
 	f32 height = Size.Height + padding;
 	
@@ -399,16 +397,16 @@ void CBillboardTextSceneNode::renderBackground()
 	indices[5] = 2;
 
 	vertices[0].TCoords.set(1.0f, 1.0f);
-	vertices[0].Color = backgroundColor;
+	vertices[0].Color = BackgroundColor;
 
 	vertices[1].TCoords.set(1.0f, 0.0f);
-	vertices[1].Color = backgroundColor;
+	vertices[1].Color = BackgroundColor;
 
 	vertices[2].TCoords.set(0.0f, 0.0f);
-	vertices[2].Color = backgroundColor;
+	vertices[2].Color = BackgroundColor;
 
 	vertices[3].TCoords.set(0.0f, 1.0f);
-	vertices[3].Color = backgroundColor;
+	vertices[3].Color = BackgroundColor;
 	
 	// make billboard look to camera
 
@@ -435,7 +433,6 @@ void CBillboardTextSceneNode::renderBackground()
 	core::vector3df borderVertical = vertical * border;
 	vertical *= 0.5f * height;
 
-
 	view *= -1.0f;
 
 	for (s32 i=0; i<4; ++i)
@@ -458,10 +455,10 @@ void CBillboardTextSceneNode::renderBackground()
 	vertices[0].Pos = pos + horizontal + vertical;
 	driver->drawIndexedTriangleList(vertices, 4, indices, 2);
 	
-	vertices[0].Color = borderColor;
-	vertices[1].Color = borderColor;
-	vertices[2].Color = borderColor;
-	vertices[3].Color = borderColor;
+	vertices[0].Color = BorderColor;
+	vertices[1].Color = BorderColor;
+	vertices[2].Color = BorderColor;
+	vertices[3].Color = BorderColor;
 	
 	// top border
 	vertices[2].Pos = pos - horizontal - borderHorizontal - vertical - borderVertical;
@@ -499,7 +496,8 @@ void CBillboardTextSceneNode::render()
 	if ( !Mesh )
 		return;
 
-	renderBackground();
+	if (Background)
+		renderBackground();
 	
 	video::IVideoDriver* driver = SceneManager->getVideoDriver();
 
