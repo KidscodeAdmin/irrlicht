@@ -317,11 +317,18 @@ void CBillboardTextSceneNode::OnAnimate(u32 timeMs)
 	core::vector3df line_vertical = vertical;
 	line_vertical *= 0.5f * Size.Height / LineCount;
 	
+	vertical *= 0.5f * Size.Height;
+	
 	view *= -1.0f;
 
 	// center text
-	line_pos += line_horizontal * (Size.Width * -0.5f + XOffset);
-	line_pos += line_vertical * (LineCount * -0.5f + YOffset);
+	line_pos += line_horizontal * (Size.Width * -0.5f);
+	
+	if ( LineCount > 1 )
+		line_pos += line_vertical * -(f32)( LineCount - 1);
+	
+	//line_pos += horizontal * XOffset;
+	//line_pos += vertical * YOffset;
 	
 	core::vector3df pos = line_pos;
 
