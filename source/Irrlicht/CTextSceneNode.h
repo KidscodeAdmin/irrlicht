@@ -133,7 +133,7 @@ namespace scene
 	private:
 
 		core::stringw Text;
-		core::array < bool > LineStart;
+		core::array < s32 > LineBreaks;
 		s32 LineCount;
 		video::SColor Color;
 		gui::IGUIFontBitmap* Font;

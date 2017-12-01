@@ -158,24 +158,24 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 		return;
 
 	Text = "";
-	LineStart.reallocate(0);
+	LineBreaks.reallocate(0);
 	LineCount = 1;
-	bool line_start = false;
+	s32 line_breaks = 0;
 	for (const wchar_t* c=text; *c; ++c)
 	{
-		if (*c == '\n')
+		if (*c == L'\n')
 		{
 			++LineCount;
-			line_start = true;
+			++line_breaks;
 		}
 		else 
 		{
 			Text += *c;
-			LineStart.push_back( line_start );
-			line_start = false;
+			LineBreaks.push_back( line_breaks );
+			line_breaks = 0;
 		}
 	}
-printf("TEXT %d %d\n",Text.size(),LineStart.size());
+	
 	Symbol.clear();
 
 	// clear mesh
@@ -265,22 +265,34 @@ void CBillboardTextSceneNode::OnAnimate(u32 timeMs)
 		return;
 
 	// get text width
-	f32 textLength = 0.f;
+	f32 textLength = 0.0f;
+	f32 maxTextLength = 0.0f;
+	
 	u32 i;
 	for(i=0; i!=Symbol.size(); ++i)
 	{
+		if ( LineBreaks[i] > 0 )
+			textLength = 0.0f;
+			
 		SSymbolInfo &info = Symbol[i];
 		textLength += info.Kerning + info.Width;
+		
+		if ( textLength > maxTextLength )
+			maxTextLength = textLength;
 	}
+	
+	textLength = maxTextLength;
+	
 	if (textLength<0.0f)
 		textLength=1.0f;
 		
-	f32 space_width = Size.Height * 0.05f;
+	f32 x_offset = Size.Height * 0.05f;
+	f32 y_offset = 0;
 
 	//const core::matrix4 &m = camera->getViewFrustum()->Matrices[ video::ETS_VIEW ];
 
 	// make billboard look to camera
-	core::vector3df pos = getAbsolutePosition();
+	core::vector3df line_pos = getAbsolutePosition();
 
 	core::vector3df campos = camera->getAbsolutePosition();
 	core::vector3df target = camera->getTarget();
@@ -295,25 +307,30 @@ void CBillboardTextSceneNode::OnAnimate(u32 timeMs)
 	}
 
 	horizontal.normalize();
-	core::vector3df space = horizontal;
-
+	
+	core::vector3df line_horizontal = horizontal;
+	
 	horizontal *= 0.5f * Size.Width;
 
 	core::vector3df vertical = horizontal.crossProduct(view);
 	vertical.normalize();
-	vertical *= 0.5f * Size.Height / LineCount;
-
+	
+	core::vector3df line_vertical = vertical;
+	line_vertical *= 0.5f * Size.Height / LineCount;
+	
 	view *= -1.0f;
 
 	// center text
-	pos += space * (Size.Width * -0.5f + space_width);
-	core::vector3df line_pos = pos;
+	line_pos += line_horizontal * (Size.Width * -0.5f + x_offset);
+	line_pos += line_vertical * (LineCount * -0.5f + y_offset);
+	
+	core::vector3df pos = line_pos;
 
 	for ( i = 0; i!= Symbol.size(); ++i )
 	{
-		if ( LineStart[i] )
+		if ( LineBreaks[i] > 0 )
 		{
-			line_pos += vertical * (Size.Height / LineCount);
+			line_pos += 2.0f * line_vertical * (f32)LineBreaks[i];
 			pos = line_pos;
 		}
 		
@@ -321,7 +338,7 @@ void CBillboardTextSceneNode::OnAnimate(u32 timeMs)
 		f32 infw = info.Width / textLength;
 		f32 infk = info.Kerning / textLength;
 		f32 w = (Size.Width * infw * 0.5f);
-		pos += space * w;
+		pos += line_horizontal * w;
 
 		SMeshBuffer* buf = (SMeshBuffer*)Mesh->getMeshBuffer(info.bufNo);
 
@@ -330,12 +347,12 @@ void CBillboardTextSceneNode::OnAnimate(u32 timeMs)
 		buf->Vertices[info.firstVert+2].Normal = view;
 		buf->Vertices[info.firstVert+3].Normal = view;
 
-		buf->Vertices[info.firstVert+0].Pos = pos + (space * w) + vertical;
-		buf->Vertices[info.firstVert+1].Pos = pos + (space * w) - vertical;
-		buf->Vertices[info.firstVert+2].Pos = pos - (space * w) - vertical;
-		buf->Vertices[info.firstVert+3].Pos = pos - (space * w) + vertical;
+		buf->Vertices[info.firstVert+0].Pos = pos + (line_horizontal * w) + line_vertical;
+		buf->Vertices[info.firstVert+1].Pos = pos + (line_horizontal * w) - line_vertical;
+		buf->Vertices[info.firstVert+2].Pos = pos - (line_horizontal * w) - line_vertical;
+		buf->Vertices[info.firstVert+3].Pos = pos - (line_horizontal * w) + line_vertical;
 
-		pos += space * (Size.Width*infk + w);
+		pos += line_horizontal * (Size.Width*infk + w);
 	}
 
 	// make bounding box
