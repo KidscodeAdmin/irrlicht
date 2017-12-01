@@ -350,6 +350,11 @@ void CBillboardTextSceneNode::OnAnimate(u32 timeMs)
 		buf->Vertices[info.firstVert+1].Pos = pos + (line_horizontal * w) - line_vertical;
 		buf->Vertices[info.firstVert+2].Pos = pos - (line_horizontal * w) - line_vertical;
 		buf->Vertices[info.firstVert+3].Pos = pos - (line_horizontal * w) + line_vertical;
+		
+		buf->Vertices[info.firstVert+0].Color = ColorBottom;
+		buf->Vertices[info.firstVert+3].Color = ColorBottom;
+		buf->Vertices[info.firstVert+1].Color = ColorTop;
+		buf->Vertices[info.firstVert+2].Color = ColorTop;
 
 		pos += line_horizontal * (Size.Width*infk + w);
 	}
