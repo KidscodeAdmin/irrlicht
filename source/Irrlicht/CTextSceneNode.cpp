@@ -94,7 +94,7 @@ CBillboardTextSceneNode::CBillboardTextSceneNode(ISceneNode* parent, ISceneManag
 	const core::vector3df& position, const core::dimension2d<f32>& size,
 	video::SColor colorTop,video::SColor shade_bottom )
 : IBillboardTextSceneNode(parent, mgr, id, position),
-	Font(0), ColorTop(colorTop), ColorBottom(shade_bottom), Mesh(0)
+	LineCount(1), Color(colorTop), Font(0), ColorTop(colorTop), ColorBottom(shade_bottom), Mesh(0)
 {
 	#ifdef _DEBUG
 	setDebugName("CBillboardTextSceneNode");
@@ -157,8 +157,25 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 	if ( !Mesh )
 		return;
 
-	Text = text;
-
+	Text = "";
+	LineStart.reallocate(0);
+	LineCount = 1;
+	bool line_start = false;
+	for (const wchar_t* c=text; *c; ++c)
+	{
+		if (*c == '\n')
+		{
+			++LineCount;
+			line_start = true;
+		}
+		else 
+		{
+			Text += *c;
+			LineStart.push_back( line_start );
+			line_start = false;
+		}
+	}
+printf("TEXT %d %d\n",Text.size(),LineStart.size());
 	Symbol.clear();
 
 	// clear mesh
@@ -182,7 +199,7 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 	{
 		SSymbolInfo info;
 
-		u32 spriteno = Font->getSpriteNoFromChar( &text[i] );
+		u32 spriteno = Font->getSpriteNoFromChar( &Text.c_str()[i] );
 		u32 rectno = sprites[spriteno].Frames[0].rectNumber;
 		u32 texno = sprites[spriteno].Frames[0].textureNumber;
 
@@ -284,15 +301,22 @@ void CBillboardTextSceneNode::OnAnimate(u32 timeMs)
 
 	core::vector3df vertical = horizontal.crossProduct(view);
 	vertical.normalize();
-	vertical *= 0.5f * Size.Height;
+	vertical *= 0.5f * Size.Height / LineCount;
 
 	view *= -1.0f;
 
 	// center text
 	pos += space * (Size.Width * -0.5f + space_width);
+	core::vector3df line_pos = pos;
 
 	for ( i = 0; i!= Symbol.size(); ++i )
 	{
+		if ( LineStart[i] )
+		{
+			line_pos += vertical * (Size.Height / LineCount);
+			pos = line_pos;
+		}
+		
 		SSymbolInfo &info = Symbol[i];
 		f32 infw = info.Width / textLength;
 		f32 infk = info.Kerning / textLength;
