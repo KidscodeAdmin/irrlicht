@@ -154,12 +154,12 @@ namespace scene
 
 	private:
 
+		core::stringw OldText;
 		core::stringw Text;
 		core::array < s32 > LineBreaks;
 		s32 LineCount;
 		video::SColor Color;
 		gui::IGUIFontBitmap* Font;
-
 		core::dimension2d<f32> Size;
 		core::aabbox3d<f32> BBox;
 		video::SMaterial Material;

@@ -158,7 +158,11 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 {
 	if ( !Mesh )
 		return;
-
+		
+	if (OldText == text)
+		return;
+		
+	OldText = text;
 	Text = "";
 	LineBreaks.reallocate(0);
 	LineCount = 1;
