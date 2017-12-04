@@ -498,7 +498,11 @@ IBillboardTextSceneNode* CSceneManager::addBillboardTextSceneNode(gui::IGUIFont*
 		const wchar_t* text, ISceneNode* parent,
 		const core::dimension2d<f32>& size,
 		const core::vector3df& position, s32 id,
-		video::SColor colorTop, video::SColor colorBottom)
+		const video::SColor colorTop, const video::SColor colorBottom,
+		const bool background, const video::SColor & backgroundColor, 
+		const video::SColor & borderColor, const f32 border,
+		const f32 xPadding, const f32 yPadding,
+		const f32 xOffset, const f32 yOffset)
 {
 	if (!font && GUIEnvironment)
 		font = GUIEnvironment->getBuiltInFont();
@@ -510,7 +514,8 @@ IBillboardTextSceneNode* CSceneManager::addBillboardTextSceneNode(gui::IGUIFont*
 		parent = this;
 
 	IBillboardTextSceneNode* node = new CBillboardTextSceneNode(parent, this, id, font, text, position, size,
-		colorTop, colorBottom);
+		colorTop, colorBottom, background, backgroundColor, borderColor, border,
+		xPadding, yPadding, xOffset, yOffset);
 	node->drop();
 
 	return node;

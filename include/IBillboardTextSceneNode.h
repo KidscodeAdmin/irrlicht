@@ -47,14 +47,6 @@ public:
 	\param bottomColor: stores the color of the bottom vertices */
 	virtual void getColor(video::SColor & topColor, video::SColor & bottomColor) const = 0;
 	
-	//! Sets the text background
-	virtual void setTextBackground(const video::SColor & backgroundColor, 
-		const video::SColor & borderColor, const f32 border, 
-		const f32 xPadding, const f32 yPadding) = 0;
-
-	//! Sets the text offset
-	virtual void setTextOffset(const f32 xOffset, const f32 yOffset) = 0;
-	
 	//! sets the text string
 	virtual void setText(const wchar_t* text) = 0;
 

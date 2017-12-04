@@ -64,7 +64,11 @@ namespace scene
 		CBillboardTextSceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id,
 			gui::IGUIFont* font,const wchar_t* text,
 			const core::vector3df& position, const core::dimension2d<f32>& size,
-			video::SColor colorTop, video::SColor shade_bottom);
+			const video::SColor colorTop, const video::SColor colorBottom,
+			const bool background, const video::SColor & backgroundColor, 
+			const video::SColor & borderColor, const f32 border,
+			const f32 xPadding, const f32 yPadding,
+			const f32 xOffset, const f32 yOffset);
 
 		//! destructor
 		virtual ~CBillboardTextSceneNode();
@@ -92,6 +96,9 @@ namespace scene
 
 		//! sets the size of the billboard
 		virtual void setSize(const core::dimension2d<f32>& size);
+		
+		//! resize the billboard
+		virtual void resize();
 
 		//! gets the size of the billboard
 		virtual const core::dimension2d<f32>& getSize() const;
@@ -117,26 +124,6 @@ namespace scene
 		//! \param topColor: stores the color of the top vertices
 		//! \param bottomColor: stores the color of the bottom vertices
 		virtual void getColor(video::SColor & topColor, video::SColor & bottomColor) const;
-
-		//! Sets the text background
-		virtual void setTextBackground(const video::SColor & backgroundColor, 
-			const video::SColor & borderColor, const f32 border,
-			const f32 xPadding, const f32 yPadding)
-		{
-			Background = true;
-			BackgroundColor = backgroundColor;
-			BorderColor = borderColor;
-			Border = border;
-			XPadding = xPadding;
-			YPadding = yPadding;
-		}
-
-		//! Sets the text offset
-		virtual void setTextOffset(const f32 xOffset, const f32 yOffset)
-		{
-			XOffset = xOffset;
-			YOffset = yOffset;
-		}
 
 		//! Sets the size
 		virtual void setSize(f32 height, f32 bottomEdgeWidth, f32 topEdgeWidth)

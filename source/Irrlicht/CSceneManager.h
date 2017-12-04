@@ -193,7 +193,11 @@ namespace scene
 			ISceneNode* parent = 0,
 			const core::dimension2d<f32>& size = core::dimension2d<f32>(10.0f, 10.0f),
 			const core::vector3df& position = core::vector3df(0,0,0), s32 id=-1,
-			video::SColor colorTop = 0xFFFFFFFF, video::SColor colorBottom = 0xFFFFFFFF);
+			const video::SColor colorTop = 0xFFFFFFFF, const video::SColor colorBottom = 0xFFFFFFFF,
+			const bool background = false, const video::SColor & backgroundColor = 0xFFFFFFFF, 
+			const video::SColor & borderColor = 0xFFFFFFFF, const f32 border = 0.0f,
+			const f32 xPadding = 0.0f, const f32 yPadding = 0.0f,
+			const f32 xOffset = 0.0f, const f32 yOffset = 0.0f);
 
 		//! Adds a scene node, which can render a quake3 shader
 		virtual IMeshSceneNode* addQuake3SceneNode(const IMeshBuffer* meshBuffer, const quake3::IShader * shader,

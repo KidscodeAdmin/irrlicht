@@ -92,11 +92,16 @@ void CTextSceneNode::setTextColor(video::SColor color)
 CBillboardTextSceneNode::CBillboardTextSceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id,
 	gui::IGUIFont* font,const wchar_t* text,
 	const core::vector3df& position, const core::dimension2d<f32>& size,
-	video::SColor colorTop,video::SColor shade_bottom )
+	const video::SColor colorTop, const video::SColor shade_bottom,
+	const bool background, const video::SColor & backgroundColor, 
+	const video::SColor & borderColor, const f32 border,
+	const f32 xPadding, const f32 yPadding,
+	const f32 xOffset, const f32 yOffset)
 : IBillboardTextSceneNode(parent, mgr, id, position),
 	LineCount(1), Color(colorTop), Font(0), ColorTop(colorTop), ColorBottom(shade_bottom), 
-	Background(false), BackgroundColor(128,128,128,128), BorderColor(128,64,64,64), 
-	Border(0.1f), XPadding(0.2f), YPadding(0.1f), XOffset(0.0f), YOffset(0.0f), Mesh(0)
+	Background(background), BackgroundColor(backgroundColor), BorderColor(borderColor), 
+	Border(border), XPadding(xPadding), YPadding(yPadding), 
+	XOffset(xOffset), YOffset(yOffset), Mesh(0)
 {
 	#ifdef _DEBUG
 	setDebugName("CBillboardTextSceneNode");
@@ -134,8 +139,8 @@ CBillboardTextSceneNode::CBillboardTextSceneNode(ISceneNode* parent, ISceneManag
 		}
 	}
 
-	setText(text);
 	setSize(size);
+	setText(text);
 
 	setAutomaticCulling ( scene::EAC_BOX );
 }
@@ -149,7 +154,6 @@ CBillboardTextSceneNode::~CBillboardTextSceneNode()
 
 	if (Mesh)
 		Mesh->drop();
-
 }
 
 
@@ -158,10 +162,10 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 {
 	if ( !Mesh )
 		return;
-		
+
 	if (OldText == text)
 		return;
-		
+
 	OldText = text;
 	Text = "";
 	LineBreaks.reallocate(0);
@@ -255,14 +259,13 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 
 		Symbol.push_back(info);
 	}
+	
+	resize();
 }
 
-
-//! pre render event
-void CBillboardTextSceneNode::OnAnimate(u32 timeMs)
+//! resize the billboard
+void CBillboardTextSceneNode::resize()
 {
-	ISceneNode::OnAnimate(timeMs);
-	
 	if (!IsVisible || !Font || !Mesh)
 		return;
 
@@ -379,6 +382,14 @@ void CBillboardTextSceneNode::OnAnimate(u32 timeMs)
 	BBox = Mesh->getBoundingBox();
 	core::matrix4 mat( getAbsoluteTransformation(), core::matrix4::EM4CONST_INVERSE );
 	mat.transformBoxEx(BBox);
+}
+
+//! pre render event
+void CBillboardTextSceneNode::OnAnimate(u32 timeMs)
+{
+	ISceneNode::OnAnimate(timeMs);
+
+	resize();
 }
 
 
