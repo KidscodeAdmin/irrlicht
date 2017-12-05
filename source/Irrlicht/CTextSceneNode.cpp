@@ -90,18 +90,18 @@ void CTextSceneNode::setTextColor(video::SColor color)
 
 //! constructor
 CBillboardTextSceneNode::CBillboardTextSceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id,
-	gui::IGUIFont* font,const wchar_t* text,
-	const core::vector3df& position, const core::dimension2d<f32>& size,
-	const video::SColor colorTop, const video::SColor shade_bottom,
-	const bool background, const video::SColor & backgroundColor, 
-	const video::SColor & borderColor, const f32 border,
-	const f32 xPadding, const f32 yPadding,
-	const f32 xOffset, const f32 yOffset)
-: IBillboardTextSceneNode(parent, mgr, id, position),
-	LineCount(1), Color(colorTop), Font(0), ColorTop(colorTop), ColorBottom(shade_bottom), 
-	Background(background), BackgroundColor(backgroundColor), BorderColor(borderColor), 
-	Border(border), XPadding(xPadding), YPadding(yPadding), 
-	XOffset(xOffset), YOffset(yOffset), Mesh(0)
+		gui::IGUIFont* font,const wchar_t* text,
+		const core::vector3df& position, const core::dimension2d<f32>& size,
+		const video::SColor colorTop, const video::SColor shade_bottom,
+		const bool background, const video::SColor & backgroundColor, 
+		const video::SColor & borderColor, const f32 border,
+		const f32 xPadding, const f32 yPadding,
+		const f32 xOffset, const f32 yOffset)
+	: IBillboardTextSceneNode(parent, mgr, id, position),
+		LineCount(1), Color(colorTop), Font(0), ColorTop(colorTop), ColorBottom(shade_bottom), 
+		Background(background), BackgroundColor(backgroundColor), BorderColor(borderColor), 
+		Border(border), XPadding(xPadding), YPadding(yPadding), 
+		XOffset(xOffset), YOffset(yOffset), Mesh(0)
 {
 	#ifdef _DEBUG
 	setDebugName("CBillboardTextSceneNode");
@@ -342,10 +342,10 @@ void CBillboardTextSceneNode::resize()
 	line_pos += line_horizontal * (Size.Width * -0.5f);
 	
 	if ( LineCount > 1 )
-		line_pos += line_vertical * -(f32)( LineCount - 1);
+		line_pos += line_vertical * -(f32)(LineCount - 1);
 	
-	line_pos += horizontal * ( XOffset / textLength );
-	line_pos += vertical * ( YOffset / LineCount );
+	line_pos += horizontal * (XOffset * charHeight / textLength);
+	line_pos += vertical * (2.0 * YOffset / LineCount);
 	
 	core::vector3df pos = line_pos;
 
