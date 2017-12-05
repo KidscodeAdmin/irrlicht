@@ -252,6 +252,7 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 			tp = &Text[i-1];
 
 		info.Width = (f32)s.getWidth();
+		info.Height = (f32)s.getHeight();
 		info.bufNo = texno;
 		info.Kerning = (f32)Font->getKerningWidth(&Text[i], tp);
 		info.firstInd = firstInd;
@@ -276,6 +277,7 @@ void CBillboardTextSceneNode::resize()
 	// get text width
 	f32 textLength = 0.0f;
 	f32 maxTextLength = 0.0f;
+	f32 charHeight = 0.0f;
 	
 	u32 i;
 	for(i=0; i!=Symbol.size(); ++i)
@@ -288,12 +290,20 @@ void CBillboardTextSceneNode::resize()
 		
 		if ( textLength > maxTextLength )
 			maxTextLength = textLength;
+			
+		if ( info.Height > charHeight )
+			charHeight = info.Height;
 	}
 	
 	textLength = maxTextLength;
 	
-	if (textLength<0.0f)
-		textLength=1.0f;
+	if ( textLength <= 0.0f )
+		textLength = 1.0f;
+		
+	if ( charHeight <= 0.0f )
+		charHeight = 1.0f;
+		
+	Size.Width = (Size.Height / LineCount) * textLength / charHeight;
 		
 	//const core::matrix4 &m = camera->getViewFrustum()->Matrices[ video::ETS_VIEW ];
 

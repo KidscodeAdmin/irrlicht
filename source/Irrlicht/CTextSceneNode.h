@@ -167,6 +167,7 @@ namespace scene
 		{
 			u32 bufNo;
 			f32 Width;
+			f32 Height;
 			f32 Kerning;
 			u32 firstInd;
 			u32 firstVert;
