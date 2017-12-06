@@ -143,14 +143,12 @@ namespace scene
 	private:
 		
 		//! Parses an hexadecimal color
-		video::SColor parseColor(const std::string& color_string); // :PATCH:
+		void parseColor(const std::string& color_string,
+						video::SColor& color, f32& scaling); // :PATCH:
 		
 		core::stringw OldText; // :PATCH:
 		core::stringw Text;
-		core::array<s32> LineBreaks; // :PATCH:
-		core::array<video::SColor> TopColors; // :PATCH:
-		core::array<video::SColor> BottomColors; // :PATCH:
-		s32 LineCount;
+		f32 LineCount;
 		gui::IGUIFontBitmap* Font;
 		core::dimension2d<f32> Size;
 		core::aabbox3d<f32> BBox;
@@ -176,6 +174,10 @@ namespace scene
 			f32 Kerning;
 			u32 firstInd;
 			u32 firstVert;
+			f32 VerticalStep; // :PATCH:
+			video::SColor TopColor; // :PATCH:
+			video::SColor BottomColor; // :PATCH:
+			f32 Scaling; // :PATCH:
 		};
 
 		core::array < SSymbolInfo > Symbol;

@@ -10,6 +10,7 @@
 #include "SMeshBuffer.h"
 #include "os.h"
 #include <map>
+#include <stdlib.h>
 
 namespace irr
 {
@@ -168,21 +169,22 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 
 	OldText = text;
 	Text = "";
-	LineBreaks.reallocate(0);
-	TopColors.reallocate(0);
-	BottomColors.reallocate(0);
-	LineCount = 1;
-	s32 line_breaks = 0;
-	
+	core::array<s32> charLineBreaks;
+	core::array<video::SColor> charTopColors;
+	core::array<video::SColor> charBottomColors;
+	core::array<f32> charScalings;
+	LineCount = 1.0f;
+	f32 lineBreaks = 0.0f;
 	video::SColor topColor = TopColor;
 	video::SColor bottomColor = BottomColor;
-	
+	f32 scaling = 1.0f;
+
 	for (const wchar_t* c=text; *c; ++c)
 	{
 		if (*c == L'\n')
 		{
-			++LineCount;
-			++line_breaks;
+			LineCount += 1.0f;
+			lineBreaks += 1.0f;
 		}
 		else
 		{
@@ -200,13 +202,13 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 				std::size_t slash = color_string.find('/');
 				if (slash == std::string::npos)
 				{
-					topColor = parseColor(color_string);
-					bottomColor = topColor;
+					parseColor(color_string, topColor, scaling);
+					parseColor(color_string, bottomColor, scaling);
 				}
 				else
 				{
-					topColor = parseColor(color_string.substr(0,slash));
-					bottomColor = parseColor(color_string.substr(slash + 1));
+					parseColor(color_string.substr(0,slash), topColor, scaling);
+					parseColor(color_string.substr(slash + 1), bottomColor, scaling);
 				}
 				continue;
 			}
@@ -215,10 +217,11 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 				++c;
 			}
 			Text += *c;
-			LineBreaks.push_back( line_breaks );
-			TopColors.push_back( topColor );
-			BottomColors.push_back( bottomColor );
-			line_breaks = 0;
+			charLineBreaks.push_back( lineBreaks );
+			charTopColors.push_back( topColor );
+			charBottomColors.push_back( bottomColor );
+			charScalings.push_back( scaling);
+			lineBreaks = 0.0f;
 		}
 	}
 	
@@ -271,10 +274,10 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 		buf->Vertices[firstVert+2].TCoords.set(tex[3], tex[2]);
 		buf->Vertices[firstVert+3].TCoords.set(tex[3], tex[1]);
 
-		buf->Vertices[firstVert+0].Color = BottomColors[i];
-		buf->Vertices[firstVert+3].Color = BottomColors[i];
-		buf->Vertices[firstVert+1].Color = TopColors[i];
-		buf->Vertices[firstVert+2].Color = TopColors[i];
+		buf->Vertices[firstVert+0].Color = charBottomColors[i];
+		buf->Vertices[firstVert+3].Color = charBottomColors[i];
+		buf->Vertices[firstVert+1].Color = charTopColors[i];
+		buf->Vertices[firstVert+2].Color = charTopColors[i];
 
 		buf->Indices[firstInd+0] = (u16)firstVert+0;
 		buf->Indices[firstInd+1] = (u16)firstVert+2;
@@ -293,6 +296,10 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 		info.Kerning = (f32)Font->getKerningWidth(&Text[i], tp);
 		info.firstInd = firstInd;
 		info.firstVert = firstVert;
+		info.VerticalStep = charLineBreaks[i];
+		info.TopColor = charTopColors[i];
+		info.BottomColor = charBottomColors[i];
+		info.Scaling = charScalings[i];
 
 		Symbol.push_back(info);
 	}
@@ -318,10 +325,11 @@ void CBillboardTextSceneNode::resize()
 	u32 i;
 	for(i=0; i!=Symbol.size(); ++i)
 	{
-		if ( LineBreaks[i] > 0 )
+		SSymbolInfo &info = Symbol[i];
+		
+		if ( info.VerticalStep > 0.0f )
 			textLength = 0.0f;
 			
-		SSymbolInfo &info = Symbol[i];
 		textLength += info.Kerning + info.Width;
 		
 		if ( textLength > maxTextLength )
@@ -378,7 +386,7 @@ void CBillboardTextSceneNode::resize()
 	line_pos += line_horizontal * (Size.Width * -0.5f);
 	
 	if ( LineCount > 1 )
-		line_pos += line_vertical * -(f32)(LineCount - 1);
+		line_pos += line_vertical * - (LineCount - 1.0f);
 	
 	line_pos += horizontal * (XOffset * charHeight / textLength);
 	line_pos += vertical * (2.0 * YOffset / LineCount);
@@ -387,13 +395,14 @@ void CBillboardTextSceneNode::resize()
 
 	for ( i = 0; i!= Symbol.size(); ++i )
 	{
-		if ( LineBreaks[i] > 0 )
+		SSymbolInfo &info = Symbol[i];
+		
+		if ( info.VerticalStep > 0.0f )
 		{
-			line_pos += 2.0f * line_vertical * (f32)LineBreaks[i];
+			line_pos += 2.0f * line_vertical * info.VerticalStep;
 			pos = line_pos;
 		}
 		
-		SSymbolInfo &info = Symbol[i];
 		f32 infw = info.Width / textLength;
 		f32 infk = info.Kerning / textLength;
 		f32 w = (Size.Width * infw * 0.5f);
@@ -411,10 +420,10 @@ void CBillboardTextSceneNode::resize()
 		buf->Vertices[info.firstVert+2].Pos = pos - (line_horizontal * w) - line_vertical;
 		buf->Vertices[info.firstVert+3].Pos = pos - (line_horizontal * w) + line_vertical;
 		
-		buf->Vertices[info.firstVert+0].Color = BottomColors[i];
-		buf->Vertices[info.firstVert+3].Color = BottomColors[i];
-		buf->Vertices[info.firstVert+1].Color = TopColors[i];
-		buf->Vertices[info.firstVert+2].Color = TopColors[i];
+		buf->Vertices[info.firstVert+0].Color = info.BottomColor;
+		buf->Vertices[info.firstVert+3].Color = info.BottomColor;
+		buf->Vertices[info.firstVert+1].Color = info.TopColor;
+		buf->Vertices[info.firstVert+2].Color = info.TopColor;
 
 		pos += line_horizontal * (Size.Width*infk + w);
 	}
@@ -704,7 +713,8 @@ void CBillboardTextSceneNode::getColor(video::SColor & topColor, video::SColor &
 }
 
 //! Parses an hexadecimal color
-video::SColor CBillboardTextSceneNode::parseColor(const std::string& color_string) // :PATCH:
+void CBillboardTextSceneNode::parseColor(const std::string& color_string,
+	video::SColor& color, f32& scaling) // :PATCH:
 {
 	static std::map<std::string, u32> colors;
 	
@@ -859,17 +869,22 @@ video::SColor CBillboardTextSceneNode::parseColor(const std::string& color_strin
 		colors["yellowgreen"]            = 0x9acd32;
 	}
 	
-	u32 color = 0;
+	u32 rgbcolor = 0;
 	
 	if (color_string.length() > 0)
 	{
 		const char* c=color_string.c_str();
 		
-		if (*c == '#')
+		if (*c >= '0' && *c <= '9')
+		{
+			scaling = atof(c);
+			return;
+		}
+		else if (*c == '#')
 		{
 			++c;
 	
-			while(*c)
+			while (*c)
 			{
 				u32 digit = 0;
 				if (*c >= '0' && *c <= '9')
@@ -879,22 +894,22 @@ video::SColor CBillboardTextSceneNode::parseColor(const std::string& color_strin
 				else if (*c >= 'A' && *c <= 'F')
 					digit = (*c - 'A') + 10;
 					
-				color = (color<<4) | digit;
+				rgbcolor = (rgbcolor<<4) | digit;
 				++c;
 			}
 			
 			if (color_string.length() <= 5)
 			{
-				color = ((color&0xF000)<<16) | ((color&0xF000)<<12) | 
-					((color&0xF00)<<12) | ((color&0xF00)<<8) | 
-					((color&0x0F0)<<8) | ((color&0x0F0)<<4) | 
-					((color&0x00F)<<4) | (color&0x00F);
+				rgbcolor = ((rgbcolor&0xF000)<<16) | ((rgbcolor&0xF000)<<12) | 
+					((rgbcolor&0xF00)<<12) | ((rgbcolor&0xF00)<<8) | 
+					((rgbcolor&0x0F0)<<8) | ((rgbcolor&0x0F0)<<4) | 
+					((rgbcolor&0x00F)<<4) | (rgbcolor&0x00F);
 					
 				if (color_string.length() <= 3)
-					color |= 0xFF000000;
+					rgbcolor |= 0xFF000000;
 			}
 			else if (color_string.length() <= 6)
-					color |= 0xFF000000;
+					rgbcolor |= 0xFF000000;
 		}
 		else
 		{	
@@ -902,11 +917,11 @@ video::SColor CBillboardTextSceneNode::parseColor(const std::string& color_strin
 			found_color = colors.find(color_string);
 			
 			if (found_color != colors.end())
-				color = 0xFF000000 | found_color->second;
+				rgbcolor = 0xFF000000 | found_color->second;
 		}
 	}
 
-	return video::SColor(color);
+	color.color = rgbcolor;
 }
 } // end namespace scene
 } // end namespace irr
