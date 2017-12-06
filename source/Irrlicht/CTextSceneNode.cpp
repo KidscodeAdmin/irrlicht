@@ -10,7 +10,6 @@
 #include "SMeshBuffer.h"
 #include "os.h"
 
-
 namespace irr
 {
 namespace scene
@@ -92,16 +91,16 @@ void CTextSceneNode::setTextColor(video::SColor color)
 CBillboardTextSceneNode::CBillboardTextSceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id,
 		gui::IGUIFont* font,const wchar_t* text,
 		const core::vector3df& position, const core::dimension2d<f32>& size,
-		const video::SColor colorTop, const video::SColor shade_bottom,
+		const video::SColor colorTop, const video::SColor bottomColor,
 		const bool background, const video::SColor & backgroundColor, 
 		const video::SColor & borderColor, const f32 border,
 		const f32 xPadding, const f32 yPadding,
 		const f32 xOffset, const f32 yOffset)
 	: IBillboardTextSceneNode(parent, mgr, id, position),
-		LineCount(1), Color(colorTop), Font(0), ColorTop(colorTop), ColorBottom(shade_bottom), 
+		LineCount(1), Font(0), TopColor(colorTop), BottomColor(bottomColor), 
 		Background(background), BackgroundColor(backgroundColor), BorderColor(borderColor), 
 		Border(border), XPadding(xPadding), YPadding(yPadding), 
-		XOffset(xOffset), YOffset(yOffset), Mesh(0)
+		XOffset(xOffset), YOffset(yOffset), Mesh(0) // :PATCH:
 {
 	#ifdef _DEBUG
 	setDebugName("CBillboardTextSceneNode");
@@ -169,8 +168,14 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 	OldText = text;
 	Text = "";
 	LineBreaks.reallocate(0);
+	TopColors.reallocate(0);
+	BottomColors.reallocate(0);
 	LineCount = 1;
 	s32 line_breaks = 0;
+	
+	video::SColor topColor = TopColor;
+	video::SColor bottomColor = BottomColor;
+	
 	for (const wchar_t* c=text; *c; ++c)
 	{
 		if (*c == L'\n')
@@ -178,10 +183,40 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 			++LineCount;
 			++line_breaks;
 		}
-		else 
+		else
 		{
+			if (*c == L'`')
+			{
+				++c;
+				std::string color_string;
+				while (*c)
+				{
+					if (*c == L'`')
+						break;
+					color_string += char(*c);
+					++c;
+				}
+				std::size_t slash = color_string.find('/');
+				if (slash == std::string::npos)
+				{
+					topColor = parseColor(color_string);
+					bottomColor = topColor;
+				}
+				else
+				{
+					topColor = parseColor(color_string.substr(0,slash));
+					bottomColor = parseColor(color_string.substr(slash + 1));
+				}
+				continue;
+			}
+			else if (*c == L'\\' && c[1])
+			{
+				++c;
+			}
 			Text += *c;
 			LineBreaks.push_back( line_breaks );
+			TopColors.push_back( topColor );
+			BottomColors.push_back( bottomColor );
 			line_breaks = 0;
 		}
 	}
@@ -235,10 +270,10 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 		buf->Vertices[firstVert+2].TCoords.set(tex[3], tex[2]);
 		buf->Vertices[firstVert+3].TCoords.set(tex[3], tex[1]);
 
-		buf->Vertices[firstVert+0].Color = ColorBottom;
-		buf->Vertices[firstVert+3].Color = ColorBottom;
-		buf->Vertices[firstVert+1].Color = ColorTop;
-		buf->Vertices[firstVert+2].Color = ColorTop;
+		buf->Vertices[firstVert+0].Color = BottomColors[i];
+		buf->Vertices[firstVert+3].Color = BottomColors[i];
+		buf->Vertices[firstVert+1].Color = TopColors[i];
+		buf->Vertices[firstVert+2].Color = TopColors[i];
 
 		buf->Indices[firstInd+0] = (u16)firstVert+0;
 		buf->Indices[firstInd+1] = (u16)firstVert+2;
@@ -375,10 +410,10 @@ void CBillboardTextSceneNode::resize()
 		buf->Vertices[info.firstVert+2].Pos = pos - (line_horizontal * w) - line_vertical;
 		buf->Vertices[info.firstVert+3].Pos = pos - (line_horizontal * w) + line_vertical;
 		
-		buf->Vertices[info.firstVert+0].Color = ColorBottom;
-		buf->Vertices[info.firstVert+3].Color = ColorBottom;
-		buf->Vertices[info.firstVert+1].Color = ColorTop;
-		buf->Vertices[info.firstVert+2].Color = ColorTop;
+		buf->Vertices[info.firstVert+0].Color = BottomColors[i];
+		buf->Vertices[info.firstVert+3].Color = BottomColors[i];
+		buf->Vertices[info.firstVert+1].Color = TopColors[i];
+		buf->Vertices[info.firstVert+2].Color = TopColors[i];
 
 		pos += line_horizontal * (Size.Width*infk + w);
 	}
@@ -613,7 +648,8 @@ const core::dimension2d<f32>& CBillboardTextSceneNode::getSize() const
 //! sets the color of the text
 void CBillboardTextSceneNode::setTextColor(video::SColor color)
 {
-	Color = color;
+	TopColor = color;
+	BottomColor = color;
 }
 
 //! Set the color of all vertices of the billboard
@@ -643,16 +679,16 @@ void CBillboardTextSceneNode::setColor(const video::SColor & topColor, const vid
 	if ( !Mesh )
 		return;
 
-	ColorBottom = bottomColor;
-	ColorTop = topColor;
+	BottomColor = bottomColor;
+	TopColor = topColor;
 	for ( u32 i = 0; i != Text.size (); ++i )
 	{
 		const SSymbolInfo &info = Symbol[i];
 		SMeshBuffer* buf = (SMeshBuffer*)Mesh->getMeshBuffer(info.bufNo);
-		buf->Vertices[info.firstVert+0].Color = ColorBottom;
-		buf->Vertices[info.firstVert+3].Color = ColorBottom;
-		buf->Vertices[info.firstVert+1].Color = ColorTop;
-		buf->Vertices[info.firstVert+2].Color = ColorTop;
+		buf->Vertices[info.firstVert+0].Color = BottomColor;
+		buf->Vertices[info.firstVert+3].Color = BottomColor;
+		buf->Vertices[info.firstVert+1].Color = TopColor;
+		buf->Vertices[info.firstVert+2].Color = TopColor;
 	}
 }
 
@@ -662,11 +698,43 @@ void CBillboardTextSceneNode::setColor(const video::SColor & topColor, const vid
 //! \param bottomColor: stores the color of the bottom vertices
 void CBillboardTextSceneNode::getColor(video::SColor & topColor, video::SColor & bottomColor) const
 {
-	topColor = ColorTop;
-	bottomColor = ColorBottom;
+	topColor = TopColor;
+	bottomColor = BottomColor;
 }
 
+//! Parses an hexadecimal color
+video::SColor CBillboardTextSceneNode::parseColor(const std::string& color_string) // :PATCH:
+{
+	u32 color = 0;
+	
+	for (const char* c=color_string.c_str(); *c; ++c)
+	{
+		u32 digit = 0;
+		if (*c >= '0' && *c <= '9')
+			digit = *c - '0';
+		else if (*c >= 'a' && *c <= 'f')
+			digit = (*c - 'a') + 10;
+		else if (*c >= 'A' && *c <= 'F')
+			digit = (*c - 'A') + 10;
+			
+		color = (color<<4) | digit;
+	}
+	
+	if (color_string.length() <= 4)
+	{
+		color = ((color&0xF000)<<16) | ((color&0xF000)<<12) | 
+		    ((color&0xF00)<<12) | ((color&0xF00)<<8) | 
+			((color&0x0F0)<<8) | ((color&0x0F0)<<4) | 
+			((color&0x00F)<<4) | (color&0x00F);
+			
+		if (color_string.length() <= 3)
+			color |= 0xFF000000;
+	}
+	else if (color_string.length() <= 6)
+			color |= 0xFF000000;
 
+	return video::SColor(color);
+}
 } // end namespace scene
 } // end namespace irr
 

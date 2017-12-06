@@ -11,6 +11,7 @@
 #include "IGUIFontBitmap.h"
 #include "ISceneCollisionManager.h"
 #include "SMesh.h"
+#include <string> // :PATCH:
 
 namespace irr
 {
@@ -68,7 +69,7 @@ namespace scene
 			const bool background, const video::SColor & backgroundColor, 
 			const video::SColor & borderColor, const f32 border,
 			const f32 xPadding, const f32 yPadding,
-			const f32 xOffset, const f32 yOffset);
+			const f32 xOffset, const f32 yOffset); // :PATCH:
 
 		//! destructor
 		virtual ~CBillboardTextSceneNode();
@@ -140,19 +141,23 @@ namespace scene
 		}
 
 	private:
-
-		core::stringw OldText;
+		
+		//! Parses an hexadecimal color
+		video::SColor parseColor(const std::string& color_string); // :PATCH:
+		
+		core::stringw OldText; // :PATCH:
 		core::stringw Text;
-		core::array < s32 > LineBreaks;
+		core::array<s32> LineBreaks; // :PATCH:
+		core::array<video::SColor> TopColors; // :PATCH:
+		core::array<video::SColor> BottomColors; // :PATCH:
 		s32 LineCount;
-		video::SColor Color;
 		gui::IGUIFontBitmap* Font;
 		core::dimension2d<f32> Size;
 		core::aabbox3d<f32> BBox;
 		video::SMaterial Material;
 
-		video::SColor ColorTop;
-		video::SColor ColorBottom;
+		video::SColor TopColor;
+		video::SColor BottomColor;
 		
 		bool Background;
 		video::SColor BackgroundColor;
