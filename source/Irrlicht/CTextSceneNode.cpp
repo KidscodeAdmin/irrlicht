@@ -186,13 +186,13 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 		}
 		else
 		{
-			if (*c == L'`')
+			if (*c == L'{')
 			{
 				++c;
 				std::string color_string;
 				while (*c)
 				{
-					if (*c == L'`')
+					if (*c == L'}')
 						break;
 					color_string += char(*c);
 					++c;
