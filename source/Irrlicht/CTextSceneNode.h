@@ -69,7 +69,7 @@ namespace scene
 			const bool background, const video::SColor & backgroundColor, 
 			const video::SColor & borderColor, const f32 border,
 			const f32 xPadding, const f32 yPadding,
-			const f32 xOffset, const f32 yOffset); // :PATCH:
+			const f32 xOffset, const f32 yOffset, const f32 baseOffset); // :PATCH:
 
 		//! destructor
 		virtual ~CBillboardTextSceneNode();
@@ -148,7 +148,7 @@ namespace scene
 		
 		core::stringw OldText; // :PATCH:
 		core::stringw Text;
-		f32 LineCount;
+		f32 LineCount; // :PATCH:
 		gui::IGUIFontBitmap* Font;
 		core::dimension2d<f32> Size;
 		core::aabbox3d<f32> BBox;
@@ -157,20 +157,22 @@ namespace scene
 		video::SColor TopColor;
 		video::SColor BottomColor;
 		
-		bool Background;
-		video::SColor BackgroundColor;
-		video::SColor BorderColor;
-		float Border;
-		float XPadding;		
-		float YPadding;		
-		float XOffset;
-		float YOffset;
-		float Width;
-		float Height;
+		bool Background; // :PATCH:
+		video::SColor BackgroundColor; // :PATCH:
+		video::SColor BorderColor; // :PATCH:
+		f32 Border; // :PATCH:
+		f32 XPadding; // :PATCH:
+		f32 YPadding; // :PATCH:
+		f32 XOffset; // :PATCH:
+		f32 YOffset; // :PATCH:
+		f32 BaseOffset; // :PATCH:
+		f32 Width; // :PATCH:
+		f32 Height; // :PATCH:
 		
 		struct SSymbolInfo
 		{
 			u32 bufNo;
+			f32 LineBreaks; // :PATCH:
 			f32 Scale; // :PATCH:
 			f32 XPosition; // :PATCH:
 			f32 YPosition; // :PATCH:
@@ -178,7 +180,8 @@ namespace scene
 			f32 Width;
 			f32 Height;
 			f32 LineHeight; // :PATCH:
-			f32 LineBreaks; // :PATCH:
+			f32 BaseHeight; // :PATCH:
+			f32 LineBaseHeight; // :PATCH:
 			u32 firstInd;
 			u32 firstVert;
 			video::SColor TopColor; // :PATCH:

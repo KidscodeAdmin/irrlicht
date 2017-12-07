@@ -97,12 +97,12 @@ CBillboardTextSceneNode::CBillboardTextSceneNode(ISceneNode* parent, ISceneManag
 		const bool background, const video::SColor & backgroundColor, 
 		const video::SColor & borderColor, const f32 border,
 		const f32 xPadding, const f32 yPadding,
-		const f32 xOffset, const f32 yOffset)
+		const f32 xOffset, const f32 yOffset, const f32 baseOffset)
 	: IBillboardTextSceneNode(parent, mgr, id, position),
 		LineCount(1), Font(0), TopColor(colorTop), BottomColor(bottomColor), 
 		Background(background), BackgroundColor(backgroundColor), BorderColor(borderColor), 
 		Border(border), XPadding(xPadding), YPadding(yPadding), 
-		XOffset(xOffset), YOffset(yOffset), Mesh(0) // :PATCH:
+		XOffset(xOffset), YOffset(yOffset), BaseOffset(baseOffset), Mesh(0) // :PATCH:
 {
 	#ifdef _DEBUG
 	setDebugName("CBillboardTextSceneNode");
@@ -175,7 +175,7 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 	core::array<video::SColor> charTopColors;
 	core::array<video::SColor> charBottomColors;
 	core::array<f32> charScales;
-	LineCount = 1.0f;
+	LineCount = 0.0f;
 	f32 lineBreaks = 0.0f;
 	video::SColor topColor = TopColor;
 	video::SColor bottomColor = BottomColor;
@@ -238,6 +238,7 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 		}
 	}
 	
+	LineCount += lineScale;
 	Symbol.clear();
 
 	// clear mesh
@@ -259,6 +260,7 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 	f32 xPosition = 0.0f;
 	f32 yPosition = 0.0f;
 	f32 lineHeight = 0.0f;
+	f32 lineBaseHeight = 0.0f;
 	s32 i;
 	
 	for ( i = 0; i < (s32)Text.size(); ++i )
@@ -304,12 +306,13 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 		buf->Indices[firstInd+5] = (u16)firstVert+2;
 
 		wchar_t *tp = 0;
-		if (i>0)
+		if (i>0 && info.LineBreaks == 0.0f)
 			tp = &Text[i-1];
 		
-		info.Kerning = (f32)Font->getKerningWidth(&Text[i], tp) * charScales[i];
+		info.Kerning = tp ? (f32)Font->getKerningWidth(&Text[i], tp) * charScales[i] : 0.0f;
 		info.Width = (f32)s.getWidth() * charScales[i];
 		info.Height = (f32)s.getHeight() * charScales[i];
+		info.BaseHeight = BaseOffset * info.Height;
 		info.bufNo = texno;
 		info.firstInd = firstInd;
 		info.firstVert = firstVert;
@@ -323,11 +326,13 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 			xPosition = 0.0f;
 			yPosition += lineHeight * info.LineBreaks;
 			lineHeight = info.Height;
+			lineBaseHeight = info.BaseHeight;
 		}
 		
 		info.XPosition = xPosition;
 		info.YPosition = yPosition;
 		info.LineHeight = lineHeight;
+		info.LineBaseHeight = lineBaseHeight;
 		
 		if (info.XPosition + info.Width > Width)
 			Width = info.XPosition + info.Width;
@@ -337,8 +342,11 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 			
 		if (info.Height > lineHeight)
 			lineHeight = info.Height;
+			
+		if (info.BaseHeight > lineBaseHeight)
+			lineBaseHeight = info.BaseHeight;
 		
-		xPosition += info.Width + info.Kerning;
+		xPosition += info.Kerning + info.Width;
 
 		Symbol.push_back(info);		
 	}
@@ -350,20 +358,30 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 		Height = yPosition;
 		
 	lineHeight = 0.0f;
+	lineBaseHeight = 0.0f;
 	
 	for ( i = Symbol.size() - 1; i >= 0 ; --i )
 	{
 		SSymbolInfo &info = Symbol[i];
 		
 		if (lineHeight == 0.0f)
+		{
 			lineHeight = info.LineHeight;
+			lineBaseHeight = info.LineBaseHeight;
+		}
 		else
+		{
 			info.LineHeight = lineHeight;
+			info.LineBaseHeight = lineBaseHeight;
+		}
 		
 		if (info.LineBreaks > 0.0f)
+		{
 			lineHeight = 0.0f;
+			lineBaseHeight = 0.0f;
+		}
 			
-		info.YPosition += info.LineHeight - info.Height;
+		info.YPosition += info.LineHeight - info.Height - info.LineBaseHeight + info.BaseHeight;
 	}
 	
 	resize();
@@ -403,6 +421,10 @@ void CBillboardTextSceneNode::resize()
 	vertical *= Size.Height / Height;
 	
 	view *= -1.0f;
+	
+	f32 x_offset = Size.Height / LineCount * XOffset;
+	f32 y_offset = Size.Height / LineCount * YOffset;
+	pos = pos + (horizontal * x_offset) + (vertical * y_offset);
 	
 	u32 i;
 	for ( i = 0; i < Symbol.size(); ++i )

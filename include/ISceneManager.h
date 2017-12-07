@@ -966,7 +966,7 @@ namespace scene
 			const bool background = false, const video::SColor & backgroundColor = 0xFFFFFFFF, 
 			const video::SColor & borderColor = 0xFFFFFFFF, const f32 border = 0.0f,
 			const f32 xPadding = 0.0f, const f32 yPadding = 0.0f,
-			const f32 xOffset = 0.0f, const f32 yOffset = 0.0f) = 0;
+			const f32 xOffset = 0.0f, const f32 yOffset = 0.0f, const f32 baseOffset = 0.0f) = 0;
 
 		//! Adds a Hill Plane mesh to the mesh pool.
 		/** The mesh is generated on the fly
