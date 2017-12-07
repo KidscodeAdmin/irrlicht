@@ -309,9 +309,10 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 		if (i>0 && info.LineBreaks == 0.0f)
 			tp = &Text[i-1];
 		
-		info.Kerning = tp ? (f32)Font->getKerningWidth(&Text[i], tp) * charScales[i] : 0.0f;
-		info.Width = (f32)s.getWidth() * charScales[i];
-		info.Height = (f32)s.getHeight() * charScales[i];
+		info.Scale = charScales[i];
+		info.Kerning = tp ? (f32)Font->getKerningWidth(&Text[i], tp) : 0.0f;
+		info.Width = (f32)s.getWidth() * info.Scale;
+		info.Height = (f32)s.getHeight() * info.Scale;
 		info.BaseHeight = BaseOffset * info.Height;
 		info.bufNo = texno;
 		info.firstInd = firstInd;
@@ -319,8 +320,10 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 		info.LineBreaks = charLineBreaks[i];
 		info.TopColor = charTopColors[i];
 		info.BottomColor = charBottomColors[i];
-		info.Scale = charScales[i];
 		
+		if (i > 0 && info.Kerning != 0.0f)
+			info.Kerning *= ((info.Scale >= Symbol[i-1].Scale) ? info.Scale : Symbol[i-1].Scale);
+			
 		if (info.LineBreaks > 0.0f)
 		{
 			xPosition = 0.0f;
@@ -346,7 +349,7 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 		if (info.BaseHeight > lineBaseHeight)
 			lineBaseHeight = info.BaseHeight;
 		
-		xPosition += info.Kerning + info.Width;
+		xPosition += info.Kerning * 0.5f + info.Width;
 
 		Symbol.push_back(info);		
 	}
