@@ -197,7 +197,8 @@ namespace scene
 			const bool background = false, const video::SColor & backgroundColor = 0xFFFFFFFF, 
 			const video::SColor & borderColor = 0xFFFFFFFF, const f32 border = 0.0f,
 			const f32 xPadding = 0.0f, const f32 yPadding = 0.0f,
-			const f32 xOffset = 0.0f, const f32 yOffset = 0.0f, const f32 baseOffset = 0.0f);
+			const f32 xOffset = 0.0f, const f32 yOffset = 0.0f, 
+			const f32 spacing = 1.0f, const f32 baseOffset = 0.0f);
 
 		//! Adds a scene node, which can render a quake3 shader
 		virtual IMeshSceneNode* addQuake3SceneNode(const IMeshBuffer* meshBuffer, const quake3::IShader * shader,

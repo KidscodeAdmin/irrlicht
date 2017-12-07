@@ -97,12 +97,16 @@ CBillboardTextSceneNode::CBillboardTextSceneNode(ISceneNode* parent, ISceneManag
 		const bool background, const video::SColor & backgroundColor, 
 		const video::SColor & borderColor, const f32 border,
 		const f32 xPadding, const f32 yPadding,
-		const f32 xOffset, const f32 yOffset, const f32 baseOffset)
+		const f32 xOffset, const f32 yOffset, 
+		const f32 spacing, const f32 baseOffset)
 	: IBillboardTextSceneNode(parent, mgr, id, position),
 		LineCount(1), Font(0), TopColor(colorTop), BottomColor(bottomColor), 
-		Background(background), BackgroundColor(backgroundColor), BorderColor(borderColor), 
-		Border(border), XPadding(xPadding), YPadding(yPadding), 
-		XOffset(xOffset), YOffset(yOffset), BaseOffset(baseOffset), Mesh(0) // :PATCH:
+		Background(background), BackgroundColor(backgroundColor), 
+		BorderColor(borderColor), Border(border), 
+		XPadding(xPadding), YPadding(yPadding), 
+		XOffset(xOffset), YOffset(yOffset), 
+		Spacing(spacing), BaseOffset(baseOffset), 
+		Mesh(0) // :PATCH:
 {
 	#ifdef _DEBUG
 	setDebugName("CBillboardTextSceneNode");
@@ -305,12 +309,8 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 		buf->Indices[firstInd+4] = (u16)firstVert+3;
 		buf->Indices[firstInd+5] = (u16)firstVert+2;
 
-		wchar_t *tp = 0;
-		if (i>0 && info.LineBreaks == 0.0f)
-			tp = &Text[i-1];
-		
 		info.Scale = charScales[i];
-		info.Kerning = tp ? (f32)Font->getKerningWidth(&Text[i], tp) : 0.0f;
+		info.Kerning = 0.0f;
 		info.Width = (f32)s.getWidth() * info.Scale;
 		info.Height = (f32)s.getHeight() * info.Scale;
 		info.BaseHeight = BaseOffset * info.Height;
@@ -320,22 +320,34 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 		info.LineBreaks = charLineBreaks[i];
 		info.TopColor = charTopColors[i];
 		info.BottomColor = charBottomColors[i];
-		
-		if (i > 0 && info.Kerning != 0.0f)
-			info.Kerning *= ((info.Scale >= Symbol[i-1].Scale) ? info.Scale : Symbol[i-1].Scale);
 			
 		if (info.LineBreaks > 0.0f)
-		{
+		{			
 			xPosition = 0.0f;
 			yPosition += lineHeight * info.LineBreaks;
 			lineHeight = info.Height;
 			lineBaseHeight = info.BaseHeight;
 		}
-		
+		else if (i>0)
+		{
+			info.Kerning = Spacing * 2.0f;
+			
+			SSymbolInfo &priorInfo = Symbol[i-1];
+			
+			if (info.Scale >= priorInfo.Scale) 
+				info.Kerning *= info.Scale;
+			else
+				info.Kerning *= priorInfo.Scale;
+		}
+				
+		xPosition += info.Kerning;
+
 		info.XPosition = xPosition;
 		info.YPosition = yPosition;
 		info.LineHeight = lineHeight;
 		info.LineBaseHeight = lineBaseHeight;
+		
+		xPosition += info.Width;
 		
 		if (info.XPosition + info.Width > Width)
 			Width = info.XPosition + info.Width;
@@ -348,8 +360,6 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 			
 		if (info.BaseHeight > lineBaseHeight)
 			lineBaseHeight = info.BaseHeight;
-		
-		xPosition += info.Kerning * 0.5f + info.Width;
 
 		Symbol.push_back(info);		
 	}

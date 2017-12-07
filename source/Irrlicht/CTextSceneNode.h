@@ -67,9 +67,10 @@ namespace scene
 			const core::vector3df& position, const core::dimension2d<f32>& size,
 			const video::SColor colorTop, const video::SColor colorBottom,
 			const bool background, const video::SColor & backgroundColor, 
-			const video::SColor & borderColor, const f32 border,
+			const video::SColor & borderColor, const f32 border, 
 			const f32 xPadding, const f32 yPadding,
-			const f32 xOffset, const f32 yOffset, const f32 baseOffset); // :PATCH:
+			const f32 xOffset, const f32 yOffset, 
+			const f32 spacing, const f32 baseOffset); // :PATCH:
 
 		//! destructor
 		virtual ~CBillboardTextSceneNode();
@@ -165,6 +166,7 @@ namespace scene
 		f32 YPadding; // :PATCH:
 		f32 XOffset; // :PATCH:
 		f32 YOffset; // :PATCH:
+		f32 Spacing; // :PATCH:
 		f32 BaseOffset; // :PATCH:
 		f32 Width; // :PATCH:
 		f32 Height; // :PATCH:
