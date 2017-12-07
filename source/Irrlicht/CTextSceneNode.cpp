@@ -334,7 +334,7 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 			
 			SSymbolInfo &priorInfo = Symbol[i-1];
 			
-			if (info.Scale >= priorInfo.Scale) 
+			if (info.Scale <= priorInfo.Scale) 
 				info.Kerning *= info.Scale;
 			else
 				info.Kerning *= priorInfo.Scale;
