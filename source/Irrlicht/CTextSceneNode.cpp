@@ -187,7 +187,7 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 		if (*c == L'\n')
 		{
 			LineCount += lineScale;
-			lineBreaks += lineScale;
+			lineBreaks += 1.0;
 		}
 		else
 		{
@@ -259,9 +259,9 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 	f32 xPosition = 0.0f;
 	f32 yPosition = 0.0f;
 	f32 lineHeight = 0.0f;
-	u32 i;
+	s32 i;
 	
-	for ( i = 0; i != Text.size (); ++i )
+	for ( i = 0; i < (s32)Text.size(); ++i )
 	{
 		SSymbolInfo info;
 
@@ -307,26 +307,27 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 		if (i>0)
 			tp = &Text[i-1];
 		
+		info.Kerning = (f32)Font->getKerningWidth(&Text[i], tp) * charScales[i];
 		info.Width = (f32)s.getWidth() * charScales[i];
 		info.Height = (f32)s.getHeight() * charScales[i];
 		info.bufNo = texno;
-		info.Kerning = (f32)Font->getKerningWidth(&Text[i], tp) * charScales[i];
 		info.firstInd = firstInd;
 		info.firstVert = firstVert;
-		info.VerticalStep = charLineBreaks[i];
+		info.LineBreaks = charLineBreaks[i];
 		info.TopColor = charTopColors[i];
 		info.BottomColor = charBottomColors[i];
 		info.Scale = charScales[i];
 		
-		if (info.VerticalStep > 0.0f)
+		if (info.LineBreaks > 0.0f)
 		{
 			xPosition = 0.0f;
-			yPosition += lineHeight * info.VerticalStep;
-			lineHeight = 0.0f;
+			yPosition += lineHeight * info.LineBreaks;
+			lineHeight = info.Height;
 		}
 		
 		info.XPosition = xPosition;
 		info.YPosition = yPosition;
+		info.LineHeight = lineHeight;
 		
 		if (info.XPosition + info.Width > Width)
 			Width = info.XPosition + info.Width;
@@ -348,7 +349,23 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 	if (yPosition > Height)
 		Height = yPosition;
 		
-
+	lineHeight = 0.0f;
+	
+	for ( i = Symbol.size() - 1; i >= 0 ; --i )
+	{
+		SSymbolInfo &info = Symbol[i];
+		
+		if (lineHeight == 0.0f)
+			lineHeight = info.LineHeight;
+		else
+			info.LineHeight = lineHeight;
+		
+		if (info.LineBreaks > 0.0f)
+			lineHeight = 0.0f;
+			
+		info.YPosition += info.LineHeight - info.Height;
+	}
+	
 	resize();
 }
 
@@ -379,16 +396,16 @@ void CBillboardTextSceneNode::resize()
 	if ( horizontal.getLength() == 0 )
 		horizontal.set(up.Y,up.X,up.Z);
 	horizontal.normalize();
-	horizontal *= 0.5f * Size.Height / Height;
+	horizontal *= Size.Height / Height;
 
 	core::vector3df vertical = horizontal.crossProduct(view);
 	vertical.normalize();
-	vertical *= 0.5f * Size.Height / Height;
+	vertical *= Size.Height / Height;
 	
 	view *= -1.0f;
 	
 	u32 i;
-	for ( i = 0; i!= Symbol.size(); ++i )
+	for ( i = 0; i < Symbol.size(); ++i )
 	{
 		SSymbolInfo &info = Symbol[i];
 		
@@ -398,11 +415,16 @@ void CBillboardTextSceneNode::resize()
 		buf->Vertices[info.firstVert+1].Normal = view;
 		buf->Vertices[info.firstVert+2].Normal = view;
 		buf->Vertices[info.firstVert+3].Normal = view;
+		
+		f32 left = info.XPosition - Width * 0.5;
+		f32 top = info.YPosition - Height * 0.5;
+		f32 right = left + info.Width;
+		f32 bottom = top + info.Height;
 
-		buf->Vertices[info.firstVert+0].Pos = pos + (horizontal * (info.XPosition + info.Width)) + (vertical * (info.YPosition + info.Height));
-		buf->Vertices[info.firstVert+1].Pos = pos + (horizontal * (info.XPosition + info.Width)) + (vertical * info.YPosition);
-		buf->Vertices[info.firstVert+2].Pos = pos + (horizontal * info.XPosition) + (vertical * info.YPosition);
-		buf->Vertices[info.firstVert+3].Pos = pos + (horizontal * info.XPosition) + (vertical * (info.YPosition + info.Height));
+		buf->Vertices[info.firstVert+0].Pos = pos + (horizontal * right) + (vertical * bottom);
+		buf->Vertices[info.firstVert+1].Pos = pos + (horizontal * right) + (vertical * top);
+		buf->Vertices[info.firstVert+2].Pos = pos + (horizontal * left) + (vertical * top);
+		buf->Vertices[info.firstVert+3].Pos = pos + (horizontal * left) + (vertical * bottom);
 		
 		buf->Vertices[info.firstVert+0].Color = info.BottomColor;
 		buf->Vertices[info.firstVert+3].Color = info.BottomColor;

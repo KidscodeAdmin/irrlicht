@@ -171,17 +171,18 @@ namespace scene
 		struct SSymbolInfo
 		{
 			u32 bufNo;
-			f32 XPosition;
-			f32 YPosition;
+			f32 Scale; // :PATCH:
+			f32 XPosition; // :PATCH:
+			f32 YPosition; // :PATCH:
+			f32 Kerning;
 			f32 Width;
 			f32 Height;
-			f32 Kerning;
+			f32 LineHeight; // :PATCH:
+			f32 LineBreaks; // :PATCH:
 			u32 firstInd;
 			u32 firstVert;
-			f32 VerticalStep; // :PATCH:
 			video::SColor TopColor; // :PATCH:
 			video::SColor BottomColor; // :PATCH:
-			f32 Scale; // :PATCH:
 		};
 
 		core::array < SSymbolInfo > Symbol;
