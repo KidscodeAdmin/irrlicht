@@ -144,7 +144,7 @@ namespace scene
 		
 		//! Parses an hexadecimal color
 		void parseColor(const std::string& color_string,
-						video::SColor& color, f32& scaling); // :PATCH:
+						video::SColor& color, f32& scale); // :PATCH:
 		
 		core::stringw OldText; // :PATCH:
 		core::stringw Text;
@@ -165,10 +165,14 @@ namespace scene
 		float YPadding;		
 		float XOffset;
 		float YOffset;
+		float Width;
+		float Height;
 		
 		struct SSymbolInfo
 		{
 			u32 bufNo;
+			f32 XPosition;
+			f32 YPosition;
 			f32 Width;
 			f32 Height;
 			f32 Kerning;
@@ -177,7 +181,7 @@ namespace scene
 			f32 VerticalStep; // :PATCH:
 			video::SColor TopColor; // :PATCH:
 			video::SColor BottomColor; // :PATCH:
-			f32 Scaling; // :PATCH:
+			f32 Scale; // :PATCH:
 		};
 
 		core::array < SSymbolInfo > Symbol;

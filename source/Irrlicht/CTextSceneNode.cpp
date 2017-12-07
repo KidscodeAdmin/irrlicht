@@ -169,22 +169,25 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 
 	OldText = text;
 	Text = "";
+	Width = 0.0f;
+	Height = 0.0f;
 	core::array<s32> charLineBreaks;
 	core::array<video::SColor> charTopColors;
 	core::array<video::SColor> charBottomColors;
-	core::array<f32> charScalings;
+	core::array<f32> charScales;
 	LineCount = 1.0f;
 	f32 lineBreaks = 0.0f;
 	video::SColor topColor = TopColor;
 	video::SColor bottomColor = BottomColor;
-	f32 scaling = 1.0f;
+	f32 scale = 1.0f;
+	f32 lineScale = 1.0f;
 
 	for (const wchar_t* c=text; *c; ++c)
 	{
 		if (*c == L'\n')
 		{
-			LineCount += 1.0f;
-			lineBreaks += 1.0f;
+			LineCount += lineScale;
+			lineBreaks += lineScale;
 		}
 		else
 		{
@@ -202,25 +205,35 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 				std::size_t slash = color_string.find('/');
 				if (slash == std::string::npos)
 				{
-					parseColor(color_string, topColor, scaling);
-					parseColor(color_string, bottomColor, scaling);
+					parseColor(color_string, topColor, scale);
+					parseColor(color_string, bottomColor, scale);
 				}
 				else
 				{
-					parseColor(color_string.substr(0,slash), topColor, scaling);
-					parseColor(color_string.substr(slash + 1), bottomColor, scaling);
+					parseColor(color_string.substr(0,slash), topColor, scale);
+					parseColor(color_string.substr(slash + 1), bottomColor, scale);
 				}
+				
+				if (scale > lineScale)
+					lineScale = scale;
+				
 				continue;
 			}
 			else if (*c == L'\\' && c[1])
 			{
 				++c;
 			}
+			
 			Text += *c;
-			charLineBreaks.push_back( lineBreaks );
-			charTopColors.push_back( topColor );
-			charBottomColors.push_back( bottomColor );
-			charScalings.push_back( scaling);
+			
+			charLineBreaks.push_back(lineBreaks);
+			charTopColors.push_back(topColor);
+			charBottomColors.push_back(bottomColor);
+			charScales.push_back(scale);
+			
+			if (lineBreaks > 0.0f)
+				lineScale = scale;
+			
 			lineBreaks = 0.0f;
 		}
 	}
@@ -242,8 +255,12 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 
 	f32 dim[2];
 	f32 tex[4];
-
+	
+	f32 xPosition = 0.0f;
+	f32 yPosition = 0.0f;
+	f32 lineHeight = 0.0f;
 	u32 i;
+	
 	for ( i = 0; i != Text.size (); ++i )
 	{
 		SSymbolInfo info;
@@ -289,21 +306,49 @@ void CBillboardTextSceneNode::setText(const wchar_t* text)
 		wchar_t *tp = 0;
 		if (i>0)
 			tp = &Text[i-1];
-
-		info.Width = (f32)s.getWidth();
-		info.Height = (f32)s.getHeight();
+		
+		info.Width = (f32)s.getWidth() * charScales[i];
+		info.Height = (f32)s.getHeight() * charScales[i];
 		info.bufNo = texno;
-		info.Kerning = (f32)Font->getKerningWidth(&Text[i], tp);
+		info.Kerning = (f32)Font->getKerningWidth(&Text[i], tp) * charScales[i];
 		info.firstInd = firstInd;
 		info.firstVert = firstVert;
 		info.VerticalStep = charLineBreaks[i];
 		info.TopColor = charTopColors[i];
 		info.BottomColor = charBottomColors[i];
-		info.Scaling = charScalings[i];
+		info.Scale = charScales[i];
+		
+		if (info.VerticalStep > 0.0f)
+		{
+			xPosition = 0.0f;
+			yPosition += lineHeight * info.VerticalStep;
+			lineHeight = 0.0f;
+		}
+		
+		info.XPosition = xPosition;
+		info.YPosition = yPosition;
+		
+		if (info.XPosition + info.Width > Width)
+			Width = info.XPosition + info.Width;
+		
+		if (info.YPosition + info.Height > Height)
+			Height = info.YPosition + info.Height;
+			
+		if (info.Height > lineHeight)
+			lineHeight = info.Height;
+		
+		xPosition += info.Width + info.Kerning;
 
-		Symbol.push_back(info);
+		Symbol.push_back(info);		
 	}
 	
+	if (xPosition > Width)
+		Width = xPosition;
+		
+	if (yPosition > Height)
+		Height = yPosition;
+		
+
 	resize();
 }
 
@@ -317,42 +362,12 @@ void CBillboardTextSceneNode::resize()
 	if (!camera)
 		return;
 
-	// get text width
-	f32 textLength = 0.0f;
-	f32 maxTextLength = 0.0f;
-	f32 charHeight = 0.0f;
-	
-	u32 i;
-	for(i=0; i!=Symbol.size(); ++i)
-	{
-		SSymbolInfo &info = Symbol[i];
-		
-		if ( info.VerticalStep > 0.0f )
-			textLength = 0.0f;
-			
-		textLength += info.Kerning + info.Width;
-		
-		if ( textLength > maxTextLength )
-			maxTextLength = textLength;
-			
-		if ( info.Height > charHeight )
-			charHeight = info.Height;
-	}
-	
-	textLength = maxTextLength;
-	
-	if ( textLength <= 0.0f )
-		textLength = 1.0f;
-		
-	if ( charHeight <= 0.0f )
-		charHeight = 1.0f;
-		
-	Size.Width = (Size.Height / LineCount) * textLength / charHeight;
+	Size.Width = Width * Size.Height / Height;
 		
 	//const core::matrix4 &m = camera->getViewFrustum()->Matrices[ video::ETS_VIEW ];
 
 	// make billboard look to camera
-	core::vector3df line_pos = getAbsolutePosition();
+	core::vector3df pos = getAbsolutePosition();
 
 	core::vector3df campos = camera->getAbsolutePosition();
 	core::vector3df target = camera->getTarget();
@@ -362,52 +377,21 @@ void CBillboardTextSceneNode::resize()
 
 	core::vector3df horizontal = up.crossProduct(view);
 	if ( horizontal.getLength() == 0 )
-	{
 		horizontal.set(up.Y,up.X,up.Z);
-	}
-
 	horizontal.normalize();
-	
-	core::vector3df line_horizontal = horizontal;
-	
-	horizontal *= 0.5f * Size.Width;
+	horizontal *= 0.5f * Size.Height / Height;
 
 	core::vector3df vertical = horizontal.crossProduct(view);
 	vertical.normalize();
-	
-	core::vector3df line_vertical = vertical;
-	line_vertical *= 0.5f * Size.Height / LineCount;
-	
-	vertical *= 0.5f * Size.Height;
+	vertical *= 0.5f * Size.Height / Height;
 	
 	view *= -1.0f;
-
-	// center text
-	line_pos += line_horizontal * (Size.Width * -0.5f);
 	
-	if ( LineCount > 1 )
-		line_pos += line_vertical * - (LineCount - 1.0f);
-	
-	line_pos += horizontal * (XOffset * charHeight / textLength);
-	line_pos += vertical * (2.0 * YOffset / LineCount);
-	
-	core::vector3df pos = line_pos;
-
+	u32 i;
 	for ( i = 0; i!= Symbol.size(); ++i )
 	{
 		SSymbolInfo &info = Symbol[i];
 		
-		if ( info.VerticalStep > 0.0f )
-		{
-			line_pos += 2.0f * line_vertical * info.VerticalStep;
-			pos = line_pos;
-		}
-		
-		f32 infw = info.Width / textLength;
-		f32 infk = info.Kerning / textLength;
-		f32 w = (Size.Width * infw * 0.5f);
-		pos += line_horizontal * w;
-
 		SMeshBuffer* buf = (SMeshBuffer*)Mesh->getMeshBuffer(info.bufNo);
 
 		buf->Vertices[info.firstVert+0].Normal = view;
@@ -415,17 +399,15 @@ void CBillboardTextSceneNode::resize()
 		buf->Vertices[info.firstVert+2].Normal = view;
 		buf->Vertices[info.firstVert+3].Normal = view;
 
-		buf->Vertices[info.firstVert+0].Pos = pos + (line_horizontal * w) + line_vertical;
-		buf->Vertices[info.firstVert+1].Pos = pos + (line_horizontal * w) - line_vertical;
-		buf->Vertices[info.firstVert+2].Pos = pos - (line_horizontal * w) - line_vertical;
-		buf->Vertices[info.firstVert+3].Pos = pos - (line_horizontal * w) + line_vertical;
+		buf->Vertices[info.firstVert+0].Pos = pos + (horizontal * (info.XPosition + info.Width)) + (vertical * (info.YPosition + info.Height));
+		buf->Vertices[info.firstVert+1].Pos = pos + (horizontal * (info.XPosition + info.Width)) + (vertical * info.YPosition);
+		buf->Vertices[info.firstVert+2].Pos = pos + (horizontal * info.XPosition) + (vertical * info.YPosition);
+		buf->Vertices[info.firstVert+3].Pos = pos + (horizontal * info.XPosition) + (vertical * (info.YPosition + info.Height));
 		
 		buf->Vertices[info.firstVert+0].Color = info.BottomColor;
 		buf->Vertices[info.firstVert+3].Color = info.BottomColor;
 		buf->Vertices[info.firstVert+1].Color = info.TopColor;
 		buf->Vertices[info.firstVert+2].Color = info.TopColor;
-
-		pos += line_horizontal * (Size.Width*infk + w);
 	}
 
 	// make bounding box
@@ -714,7 +696,7 @@ void CBillboardTextSceneNode::getColor(video::SColor & topColor, video::SColor &
 
 //! Parses an hexadecimal color
 void CBillboardTextSceneNode::parseColor(const std::string& color_string,
-	video::SColor& color, f32& scaling) // :PATCH:
+	video::SColor& color, f32& scale) // :PATCH:
 {
 	static std::map<std::string, u32> colors;
 	
@@ -877,7 +859,7 @@ void CBillboardTextSceneNode::parseColor(const std::string& color_string,
 		
 		if (*c >= '0' && *c <= '9')
 		{
-			scaling = atof(c);
+			scale = atof(c);
 			return;
 		}
 		else if (*c == '#')
